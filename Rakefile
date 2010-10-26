@@ -5,11 +5,8 @@ require 'rspec/core/rake_task'
 
 Bundler::GemHelper.install_tasks
 
-task :default => [ 'spec:run' ]
-
-namespace :spec do
-  desc "Run all specs"
-  RSpec::Core::RakeTask.new('run') do |t|
-    t.pattern = 'spec/*.rb'
-  end
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.rspec_opts = "--color --format documentation"
 end
+
+task :default => :spec
