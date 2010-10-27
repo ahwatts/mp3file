@@ -98,34 +98,34 @@ module Mp3file
       # @file.close
     end
 
-    # def get_next_header(file, offset = nil)
-    #   if offset && offset != file.tell
-    #     file.seek(offset, IO::SEEK_SET)
-    #   end
+    def get_next_header(file, offset = nil)
+      if offset && offset != file.tell
+        file.seek(offset, IO::SEEK_SET)
+      end
 
-    #   header = nil
-    #   header_offset = file.tell
+      header = nil
+      header_offset = file.tell
 
-    #   while header.nil?
-    #     byte = file.readbyte
-    #     while byte != 0xFF
-    #       byte = file.readbyte
-    #     end
-    #     header_bytes = [ byte ] + file.read(3).bytes.to_a
-    #     if header_bytes[1] & 0xE0 != 0xE0
-    #       file.seek(-3, IO::SEEK_CUR)
-    #     else
-    #       header = MP3Header.new(header_bytes)
-    #       if !header.valid?
-    #         header = nil
-    #         file.seek(-3, IO::SEEK_CUR)
-    #       else
-    #         header_offset = file.tell - 4
-    #       end
-    #     end
-    #   end
+      while header.nil?
+        byte = file.readbyte
+        while byte != 0xFF
+          byte = file.readbyte
+        end
+        header_bytes = [ byte ] + file.read(3).bytes.to_a
+        if header_bytes[1] & 0xE0 != 0xE0
+          file.seek(-3, IO::SEEK_CUR)
+        else
+          header = MP3Header.new(header_bytes)
+          if !header.valid?
+            header = nil
+            file.seek(-3, IO::SEEK_CUR)
+          else
+            header_offset = file.tell - 4
+          end
+        end
+      end
 
-    #   [ header_offset, header ]
-    # end
+      [ header_offset, header ]
+    end
   end
 end
