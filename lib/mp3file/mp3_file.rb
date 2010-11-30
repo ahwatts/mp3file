@@ -95,7 +95,7 @@ module Mp3file
       #   end
       # end
 
-      # @file.close
+      @file.close
     end
 
     def get_next_header(file, offset = nil)

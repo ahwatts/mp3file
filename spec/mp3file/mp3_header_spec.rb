@@ -136,9 +136,26 @@ describe Mp3file::MP3Header do
     ]
     combinations.each do |name, byte2, byte3, size|
       context "for #{name}" do
-        it "returns the frame size" do
+        it "returns #{size} bytes" do
           h = Mp3file::MP3Header.new([ 0xFF, byte2, byte3, 0xC0 ])
           h.frame_size.should == size
+        end
+      end
+    end
+  end
+
+  describe "#side_bytes" do
+    combinations = [
+      [ "MPEG 1 Stereo",   0xFF, 0x18, 0x00, 32 ],
+      [ "MPEG 1 Mono",     0xFF, 0x18, 0xC0, 17 ],
+      [ "MPEG 2 J-Stereo", 0xF3, 0xD5, 0x40, 17 ],
+      [ "MPEG 2.5 Mono",   0xE3, 0xD5, 0xC0,  9 ],      
+    ]
+    combinations.each do |name, b2, b3, b4, side_bytes|
+      context "for #{name}" do
+        it "returns #{side_bytes} bytes" do
+          h = Mp3file::MP3Header.new([ 0xFF, b2, b3, b4 ])
+          h.side_bytes.should == side_bytes
         end
       end
     end
