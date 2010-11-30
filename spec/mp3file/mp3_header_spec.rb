@@ -128,8 +128,19 @@ describe Mp3file::MP3Header do
   end
 
   describe "#frame_size" do
-    it "returns the frame size" do
-      pending("write this test")
+    combinations = [
+      [ "MPEG 1 Layer I 32 kbps 32 kHz padded",        0xFF, 0x1B,  49 ],
+      [ "MPEG 1 Layer II 56 kbps 48 kHz not padded",   0xFD, 0x34, 168 ],
+      [ "MPEG 1 Layer III 64 kbps 44.1 kHz padded",    0xFB, 0x53, 209 ],
+      [ "MPEG 2 Layer III 144 kbps 24 kHz not padded", 0xF3, 0xD5, 432 ],
+    ]
+    combinations.each do |name, byte2, byte3, size|
+      context "for #{name}" do
+        it "returns the frame size" do
+          h = Mp3file::MP3Header.new([ 0xFF, byte2, byte3, 0xC0 ])
+          h.frame_size.should == size
+        end
+      end
     end
   end
 end
