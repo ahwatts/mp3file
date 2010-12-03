@@ -79,7 +79,15 @@ describe Mp3file::MP3Header do
           end
         end
 
-        it "rejects free or bad bitrate values"
+        it "rejects a free bitrate" do
+          io = create_io([ 0xFF, byte2, 0x00, 0x01 ])
+          lambda { Mp3file::MP3Header.new(io) }.should(raise_error(BinData::ValidityError))
+        end
+
+        it "rejects a bad bitrate" do
+          io = create_io([ 0xFF, byte2, 0xF0, 0x01 ])
+          lambda { Mp3file::MP3Header.new(io) }.should(raise_error(BinData::ValidityError))
+        end
       end
     end
   end
@@ -98,7 +106,10 @@ describe Mp3file::MP3Header do
           end
         end
 
-        it "rejects reserved samplerate values"
+        it "rejects reserved samplerate values" do
+          io = create_io([ 0xFF, byte2, 0x1C, 0x01 ])
+          lambda { Mp3file::MP3Header.new(io) }.should(raise_error(BinData::ValidityError))
+        end
       end
     end
   end
