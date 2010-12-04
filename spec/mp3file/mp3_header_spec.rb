@@ -114,46 +114,45 @@ describe Mp3file::MP3Header do
     end
   end
 
-#   describe "#samplerate" do
-#     bits = (0..2).to_a
-#     combinations = [
-#       [ "MPEG 1",   0xFF, [ 44100, 48000, 32000 ] ],
-#       [ "MPEG 2",   0xF5, [ 22050, 24000, 16000 ] ],
-#       [ "MPEG 2.5", 0xE3, [ 11025, 12000,  8000 ] ],
-#     ]
-#     combinations.each do |name, byte2, srs|
-#       context "for #{name}" do
-#         bits.zip(srs).each do |bits, sr|
-#           it("returns %d Hz for %02b" % [ sr, bits ]) do
-#             Mp3file::MP3Header.new([ 0xFF, byte2, 0x10 + bits << 2, 0 ]).samplerate.
-#               should == sr
-#           end
-#         end
-#       end
-#     end
-#   end
+  describe "#has_padding" do
+    it "detects if the frame is padded" do
+      io = create_io([ 0xFF, 0xFB, 0b0001_1010, 0x01 ])
+      h = Mp3file::MP3Header.new(io)
+      h.has_padding.should == true
+    end
 
-#   describe "#has_padding" do
-#     it "returns if the frame is padded" do
-#       Mp3file::MP3Header.new([ 0xFF, 0xFB, 0b1001_1000, 0 ]).has_padding.
-#         should == false
-#       Mp3file::MP3Header.new([ 0xFF, 0xFB, 0b1001_1010, 0 ]).has_padding.
-#         should == true
-#     end
-#   end
+    it "detects if the frame is not padded" do
+      io = create_io([ 0xFF, 0xFB, 0b0001_1000, 0x01 ])
+      h = Mp3file::MP3Header.new(io)
+      h.has_padding.should == false
+    end
+  end
 
-#   describe "#mode" do
-#     it "returns the mode" do
-#       Mp3file::MP3Header.new([ 0xFF, 0xFB, 0x92, 0b0000_0000 ]).mode.
-#         should == :stereo
-#       Mp3file::MP3Header.new([ 0xFF, 0xFB, 0x92, 0b0100_0000 ]).mode.
-#         should == :joint_stereo
-#       Mp3file::MP3Header.new([ 0xFF, 0xFB, 0x92, 0b1000_0000 ]).mode.
-#         should == :dual_channel
-#       Mp3file::MP3Header.new([ 0xFF, 0xFB, 0x92, 0b1100_0000 ]).mode.
-#         should == :mono
-#     end
-#   end
+  describe "#mode" do
+    it "detects Stereo" do
+      io = create_io([ 0xFF, 0xFB, 0x92, 0b0000_0001 ])
+      h = Mp3file::MP3Header.new(io)
+      h.mode.should == 'Stereo'
+    end
+
+    it "detects Joint Stereo" do
+      io = create_io([ 0xFF, 0xFB, 0x92, 0b0100_0001 ])
+      h = Mp3file::MP3Header.new(io)
+      h.mode.should == 'Joint Stereo'
+    end
+
+    it "detects Dual Channel" do
+      io = create_io([ 0xFF, 0xFB, 0x92, 0b1000_0001 ])
+      h = Mp3file::MP3Header.new(io)
+      h.mode.should == 'Dual Channel'
+    end
+
+    it "detects Mono" do
+      io = create_io([ 0xFF, 0xFB, 0x92, 0b1100_0001 ])
+      h = Mp3file::MP3Header.new(io)
+      h.mode.should == 'Mono'
+    end
+  end
 
 #   describe "#samples" do
 #     combinations = [

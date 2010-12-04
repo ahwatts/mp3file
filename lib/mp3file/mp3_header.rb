@@ -52,6 +52,7 @@ module Mp3file
       [ 22050, 24000, 16000 ], # MPEG 2
       [ 44100, 48000, 32000 ], # MPEG 1
     ]
+    MODES = [ 'Stereo', 'Joint Stereo', 'Dual Channel', 'Mono' ]
 
     def initialize(io)
       head = MP3HeaderFormat.read(io)
@@ -60,6 +61,8 @@ module Mp3file
       @has_crc = head.crc == 0
       @bitrate = BITRATES[head.version][head.layer][head.bitrate - 1]
       @samplerate = SAMPLERATES[head.version][head.samplerate]
+      @has_padding = head.padding == 1
+      @mode = MODES[head.mode]
     end
 
     # MPEG_VERSIONS = [ :mpeg_2_5, nil, :mpeg_2, :mpeg_1 ]
