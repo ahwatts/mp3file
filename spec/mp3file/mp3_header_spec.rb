@@ -6,12 +6,12 @@ include CommonHelpers
 describe Mp3file::MP3Header do
   it "raises an error if the first byte isn't 255" do
     lambda { Mp3file::MP3Header.new(create_io([ 0xAA, 0xF8, 0x10, 0x01 ])) }
-      .should(raise_error(BinData::ValidityError))
+      .should(raise_error(Mp3file::InvalidMP3HeaderError))
   end
 
   it "raises an error if the second sync byte is wrong" do
     lambda { Mp3file::MP3Header.new(create_io([ 0xFF, 0xB8, 0x10, 0x01 ])) }
-      .should(raise_error(BinData::ValidityError))
+      .should(raise_error(Mp3file::InvalidMP3HeaderError))
   end
 
   describe "#version" do
@@ -27,7 +27,7 @@ describe Mp3file::MP3Header do
 
     it "raises an error on an invalid version" do
       lambda { Mp3file::MP3Header.new(create_io([ 0xFF, 0b1110_1010, 0x10, 0x01 ])) }
-        .should(raise_error(BinData::ValidityError))
+        .should(raise_error(Mp3file::InvalidMP3HeaderError))
     end
   end
 
@@ -44,7 +44,7 @@ describe Mp3file::MP3Header do
 
     it "raises an error on an invalid version" do
       lambda { Mp3file::MP3Header.new(create_io([ 0xFF, 0b1111_1000, 0x10, 0x01 ])) }
-        .should(raise_error(BinData::ValidityError))
+        .should(raise_error(Mp3file::InvalidMP3HeaderError))
     end
   end
 
@@ -75,18 +75,18 @@ describe Mp3file::MP3Header do
           it "detects #{br} kbps" do
             io = create_io([ 0xFF, byte2, (i + 1) << 4, 0x01 ])
             h = Mp3file::MP3Header.new(io)
-            h.bitrate.should == br
+            h.bitrate.should == br * 1000
           end
         end
 
         it "rejects a free bitrate" do
           io = create_io([ 0xFF, byte2, 0x00, 0x01 ])
-          lambda { Mp3file::MP3Header.new(io) }.should(raise_error(BinData::ValidityError))
+          lambda { Mp3file::MP3Header.new(io) }.should(raise_error(Mp3file::InvalidMP3HeaderError))
         end
 
         it "rejects a bad bitrate" do
           io = create_io([ 0xFF, byte2, 0xF0, 0x01 ])
-          lambda { Mp3file::MP3Header.new(io) }.should(raise_error(BinData::ValidityError))
+          lambda { Mp3file::MP3Header.new(io) }.should(raise_error(Mp3file::InvalidMP3HeaderError))
         end
       end
     end
@@ -108,7 +108,7 @@ describe Mp3file::MP3Header do
 
         it "rejects reserved samplerate values" do
           io = create_io([ 0xFF, byte2, 0x1C, 0x01 ])
-          lambda { Mp3file::MP3Header.new(io) }.should(raise_error(BinData::ValidityError))
+          lambda { Mp3file::MP3Header.new(io) }.should(raise_error(Mp3file::InvalidMP3HeaderError))
         end
       end
     end
@@ -154,59 +154,56 @@ describe Mp3file::MP3Header do
     end
   end
 
-#   describe "#samples" do
-#     combinations = [
-#       [ "MPEG 1 Layer I",     0xFF,  384 ],
-#       [ "MPEG 1 Layer II",    0xFD, 1152 ],
-#       [ "MPEG 1 Layer III",   0xFB, 1152 ],
-#       [ "MPEG 2 Layer I",     0xF7,  384 ],
-#       [ "MPEG 2 Layer II",    0xF5, 1152 ],
-#       [ "MPEG 2 Layer III",   0xF3,  576 ],
-#       [ "MPEG 2.5 Layer I",   0xE7,  384 ],
-#       [ "MPEG 2.5 Layer II",  0xE5, 1152 ],
-#       [ "MPEG 2.5 Layer III", 0xE3,  576 ],
-#     ]
-#     combinations.each do |name, byte2, samples|
-#       context "for #{name}" do
-#         it("returns %d samples" % [ samples ]) do
-#           Mp3file::MP3Header.new([ 0xFF, byte2, 0x92, 0xC0 ]).samples.
-#             should == samples
-#         end
-#       end
-#     end
-#   end
+  describe "#samples" do
+    combinations = [
+      [ "MPEG 1 Layer I",     0xFF,  384 ],
+      [ "MPEG 1 Layer II",    0xFD, 1152 ],
+      [ "MPEG 1 Layer III",   0xFB, 1152 ],
+      [ "MPEG 2 Layer I",     0xF7,  384 ],
+      [ "MPEG 2 Layer II",    0xF5, 1152 ],
+      [ "MPEG 2 Layer III",   0xF3,  576 ],
+      [ "MPEG 2.5 Layer I",   0xE7,  384 ],
+      [ "MPEG 2.5 Layer II",  0xE5, 1152 ],
+      [ "MPEG 2.5 Layer III", 0xE3,  576 ],
+    ]
+    combinations.each do |name, byte2, samples|
+      it("for #{name}, returns %d samples" % [ samples ]) do
+        io = create_io([ 0xFF, byte2, 0x92, 0xC1 ])
+        h = Mp3file::MP3Header.new(io)
+        h.samples.should == samples
+      end
+    end
+  end
 
-#   describe "#frame_size" do
-#     combinations = [
-#       [ "MPEG 1 Layer I 32 kbps 32 kHz padded",        0xFF, 0x1B,  49 ],
-#       [ "MPEG 1 Layer II 56 kbps 48 kHz not padded",   0xFD, 0x34, 168 ],
-#       [ "MPEG 1 Layer III 64 kbps 44.1 kHz padded",    0xFB, 0x53, 209 ],
-#       [ "MPEG 2 Layer III 144 kbps 24 kHz not padded", 0xF3, 0xD5, 432 ],
-#     ]
-#     combinations.each do |name, byte2, byte3, size|
-#       context "for #{name}" do
-#         it "returns #{size} bytes" do
-#           h = Mp3file::MP3Header.new([ 0xFF, byte2, byte3, 0xC0 ])
-#           h.frame_size.should == size
-#         end
-#       end
-#     end
-#   end
+  describe "#frame_size" do
+    combinations = [
+      [ "MPEG 1 Layer I 32 kbps 32 kHz padded",        0xFF, 0x1B,  52 ],
+      [ "MPEG 1 Layer II 56 kbps 48 kHz not padded",   0xFD, 0x34, 168 ],
+      [ "MPEG 1 Layer III 64 kbps 44.1 kHz padded",    0xFB, 0x53, 209 ],
+      [ "MPEG 2 Layer III 144 kbps 24 kHz not padded", 0xF3, 0xD5, 432 ],
+    ]
+    combinations.each do |name, byte2, byte3, size|
+      it "for #{name}, returns #{size} bytes" do
+        io = create_io([ 0xFF, byte2, byte3, 0xC1 ])
+        h = Mp3file::MP3Header.new(io)
+        h.frame_size.should == size
+      end
+    end
+  end
 
-#   describe "#side_bytes" do
-#     combinations = [
-#       [ "MPEG 1 Stereo",   0xFF, 0x18, 0x00, 32 ],
-#       [ "MPEG 1 Mono",     0xFF, 0x18, 0xC0, 17 ],
-#       [ "MPEG 2 J-Stereo", 0xF3, 0xD5, 0x40, 17 ],
-#       [ "MPEG 2.5 Mono",   0xE3, 0xD5, 0xC0,  9 ],      
-#     ]
-#     combinations.each do |name, b2, b3, b4, side_bytes|
-#       context "for #{name}" do
-#         it "returns #{side_bytes} bytes" do
-#           h = Mp3file::MP3Header.new([ 0xFF, b2, b3, b4 ])
-#           h.side_bytes.should == side_bytes
-#         end
-#       end
-#     end
-#   end
+  describe "#side_bytes" do
+    combinations = [
+      [ "MPEG 1 Stereo",   0xFF, 0x18, 0x01, 32 ],
+      [ "MPEG 1 Mono",     0xFF, 0x18, 0xC1, 17 ],
+      [ "MPEG 2 J-Stereo", 0xF3, 0xD5, 0x41, 17 ],
+      [ "MPEG 2.5 Mono",   0xE3, 0xD5, 0xC1,  9 ],      
+    ]
+    combinations.each do |name, b2, b3, b4, side_bytes|
+      it "for #{name}, returns #{side_bytes} bytes" do
+        io = create_io([ 0xFF, b2, b3, b4 ])
+        h = Mp3file::MP3Header.new(io)
+        h.side_bytes.should == side_bytes
+      end
+    end
+  end
 end
