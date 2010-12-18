@@ -154,6 +154,133 @@ describe Mp3file::MP3Header do
     end
   end
 
+  describe "#mode_extension" do
+    context "For Layers I & II" do
+      it "detects bands 4 to 31" do
+        io = create_io([ 0xFF, 0xFE, 0x92, 0b0100_0001 ])
+        h = Mp3file::MP3Header.new(io)
+        h.mode_extension.should == 'bands 4 to 31'
+      end
+
+      it "detects bands 8 to 31" do
+        io = create_io([ 0xFF, 0xFD, 0x92, 0b0101_0001 ])
+        h = Mp3file::MP3Header.new(io)
+        h.mode_extension.should == 'bands 8 to 31'
+      end
+
+      it "detects bands 12 to 31" do
+        io = create_io([ 0xFF, 0xFE, 0x92, 0b0110_0001 ])
+        h = Mp3file::MP3Header.new(io)
+        h.mode_extension.should == 'bands 12 to 31'
+      end
+
+      it "detects bands 16 to 31" do
+        io = create_io([ 0xFF, 0xFD, 0x92, 0b0111_0001 ])
+        h = Mp3file::MP3Header.new(io)
+        h.mode_extension.should == 'bands 16 to 31'
+      end
+    end
+
+    context "For Layer III" do
+      it "detects neither mode extension" do
+        io = create_io([ 0xFF, 0xFB, 0x92, 0b0100_0001 ])
+        h = Mp3file::MP3Header.new(io)
+        h.mode_extension.should == nil
+      end
+
+      it "detects only Intensity Stereo" do
+        io = create_io([ 0xFF, 0xFB, 0x92, 0b0101_0001 ])
+        h = Mp3file::MP3Header.new(io)
+        h.mode_extension.should == 'Intensity Stereo'
+      end
+
+      it "detects only M/S Stereo" do
+        io = create_io([ 0xFF, 0xFB, 0x92, 0b0110_0001 ])
+        h = Mp3file::MP3Header.new(io)
+        h.mode_extension.should == 'M/S Stereo'
+      end
+
+      it "detects both Intensity Stereo & M/S Stereo" do
+        io = create_io([ 0xFF, 0xFB, 0x92, 0b0111_0001 ])
+        h = Mp3file::MP3Header.new(io)
+        h.mode_extension.should == [ 'Intensity Stereo', 'M/S Stereo' ]
+      end
+    end
+
+    context "for non-Joint-Stereo headers" do
+      it "should return no mode extension for Stereo" do
+        io = create_io([ 0xFF, 0xFE, 0x92, 0b0011_0001 ])
+        h = Mp3file::MP3Header.new(io)
+        h.mode_extension.should == nil
+      end
+
+      it "should return no mode extension for Dual Channel" do
+        io = create_io([ 0xFF, 0xFD, 0x92, 0b1011_0001 ])
+        h = Mp3file::MP3Header.new(io)
+        h.mode_extension.should == nil
+      end
+
+      it "should return no mode extension for Mono" do
+        io = create_io([ 0xFF, 0xFB, 0x92, 0b1111_0001 ])
+        h = Mp3file::MP3Header.new(io)
+        h.mode_extension.should == nil
+      end
+    end
+  end
+
+  describe "#copyright" do
+    it "detects copyrighted material" do
+      io = create_io([ 0xFF, 0xFB, 0x92, 0b0111_1001 ])
+      h = Mp3file::MP3Header.new(io)
+      h.copyright.should == true
+    end
+
+    it "detects non-copyrighted material" do
+      io = create_io([ 0xFF, 0xFB, 0x92, 0b0111_0001 ])
+      h = Mp3file::MP3Header.new(io)
+      h.copyright.should == false
+    end
+  end
+
+  describe "#original" do
+    it "detects original material" do
+      io = create_io([ 0xFF, 0xFB, 0x92, 0b0111_0101 ])
+      h = Mp3file::MP3Header.new(io)
+      h.original.should == true
+    end
+
+    it "detects non-original material" do
+      io = create_io([ 0xFF, 0xFB, 0x92, 0b0111_0001 ])
+      h = Mp3file::MP3Header.new(io)
+      h.original.should == false
+    end
+  end
+
+  describe "#emphasis" do
+    it "detects no emphasis" do
+      io = create_io([ 0xFF, 0xFB, 0x92, 0b0111_0000 ])
+      h = Mp3file::MP3Header.new(io)
+      h.emphasis.should == 'none'
+    end
+
+    it "detects 50/15 ms" do
+      io = create_io([ 0xFF, 0xFB, 0x92, 0b0111_0001 ])
+      h = Mp3file::MP3Header.new(io)
+      h.emphasis.should == '50/15 ms'
+    end
+
+    it "raises an error on 2" do
+      io = create_io([ 0xFF, 0xFB, 0x92, 0b0111_0010 ])
+      lambda { Mp3file::MP3Header.new(io) }.should(raise_error(Mp3file::InvalidMP3HeaderError))
+    end
+
+    it "detects CCIT J.17" do
+      io = create_io([ 0xFF, 0xFB, 0x92, 0b0111_0011 ])
+      h = Mp3file::MP3Header.new(io)
+      h.emphasis.should == 'CCIT J.17'
+    end
+  end
+
   describe "#samples" do
     combinations = [
       [ "MPEG 1 Layer I",     0xFF,  384 ],

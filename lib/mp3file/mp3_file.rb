@@ -48,13 +48,17 @@ module Mp3file
         @file.seek(0, IO::SEEK_SET)
       end
 
-      # # Try to find the first MP3 header.
-      # @first_header_offset, @first_header = get_next_header(@file)
+      # Try to find the first MP3 header.
+      @first_header_offset, @first_header = get_next_header(@file)
 
-      # @version = @first_header.version
-      # @layer = @first_header.layer
-      # @bitrate = @first_header.bitrate / 1000
-      # @samplerate = @first_header.samplerate
+      @mpeg_version = @first_header.version
+      @layer = @first_header.layer
+      @bitrate = @first_header.bitrate / 1000
+      @samplerate = @first_header.samplerate
+      @audio_size = @file_size
+      if @id3v2tag
+        @audio_size -= @id3v2tag.size
+      end
 
       # # Do the CBR length calculation.  Note that this will be
       # # off by about a second in the presence of an ID3v1 tag.
@@ -107,22 +111,31 @@ module Mp3file
       header_offset = file.tell
 
       while header.nil?
-        byte = file.readbyte
-        while byte != 0xFF
-          byte = file.readbyte
+        begin
+          header = MP3Header.new(file)
+          header_offset = file.tell - 4
+        rescue InvalidMP3HeaderError => e
+          header_offset += 1
+          file.seek(header_offset, IO::SEEK_SET)
+          retry
         end
-        header_bytes = [ byte ] + file.read(3).bytes.to_a
-        if header_bytes[1] & 0xE0 != 0xE0
-          file.seek(-3, IO::SEEK_CUR)
-        else
-          header = MP3Header.new(header_bytes)
-          if !header.valid?
-            header = nil
-            file.seek(-3, IO::SEEK_CUR)
-          else
-            header_offset = file.tell - 4
-          end
-        end
+
+        # byte = file.readbyte
+        # while byte != 0xFF
+        #   byte = file.readbyte
+        # end
+        # header_bytes = [ byte ] + file.read(3).bytes.to_a
+        # if header_bytes[1] & 0xE0 != 0xE0
+        #   file.seek(-3, IO::SEEK_CUR)
+        # else
+        #   header = MP3Header.new(header_bytes)
+        #   if !header.valid?
+        #     header = nil
+        #     file.seek(-3, IO::SEEK_CUR)
+        #   else
+        #     header_offset = file.tell - 4
+        #   end
+        # end
       end
 
       [ header_offset, header ]

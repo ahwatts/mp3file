@@ -24,7 +24,7 @@ module Mp3file
       bit2(:mode_extension)
       bit1(:copyright)
       bit1(:original)
-      bit2(:emphasis, :check_value => lambda { value != 0 })
+      bit2(:emphasis, :check_value => lambda { value != 2 })
     end
 
     MPEG_VERSIONS = [ 'MPEG 2.5', nil, 'MPEG 2', 'MPEG 1' ]
@@ -67,6 +67,9 @@ module Mp3file
       [ 17, 17, 17,  9 ], # MPEG 2, Stereo, J-Stereo, Dual Channel, Mono
       [ 32, 32, 32, 17 ], # MPEG 1, Stereo, J-Stereo, Dual Channel, Mono
     ]
+    MODE_EXTENSIONS_LAYER_I_II = [ 'bands 4 to 31', 'bands 8 to 31', 'bands 12 to 31', 'bands 16 to 31' ]
+    MODE_EXTENSIONS_LAYER_III = [ nil, 'Intensity Stereo', 'M/S Stereo', [ 'Intensity Stereo', 'M/S Stereo' ] ]
+    EMPHASES = [ 'none', '50/15 ms', nil, 'CCIT J.17' ]
 
     def initialize(io)
       begin
@@ -82,6 +85,19 @@ module Mp3file
       @samplerate = SAMPLERATES[head.version][head.samplerate]
       @has_padding = head.padding == 1
       @mode = MODES[head.mode]
+
+      @mode_extension = nil
+      if @mode == 'Joint Stereo'
+        if [ 'Layer I', 'Layer II' ].include?(@layer)
+          @mode_extension = MODE_EXTENSIONS_LAYER_I_II[head.mode_extension]
+        elsif @layer == 'Layer III'
+          @mode_extension = MODE_EXTENSIONS_LAYER_III[head.mode_extension]
+        end
+      end
+
+      @copyright = head.copyright == 1
+      @original = head.original == 1
+      @emphasis = EMPHASES[head.emphasis]
       @samples = SAMPLE_COUNTS[head.version][head.layer]
 
       slot_size = layer == 'Layer I' ? 4 : 1
