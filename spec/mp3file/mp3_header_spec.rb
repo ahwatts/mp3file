@@ -5,13 +5,13 @@ include CommonHelpers
 
 describe Mp3file::MP3Header do
   it "raises an error if the first byte isn't 255" do
-    lambda { Mp3file::MP3Header.new(create_io([ 0xAA, 0xF8, 0x10, 0x01 ])) }
-      .should(raise_error(Mp3file::InvalidMP3HeaderError))
+    lambda { Mp3file::MP3Header.new(create_io([ 0xAA, 0xF8, 0x10, 0x01 ])) }.
+      should(raise_error(Mp3file::InvalidMP3HeaderError))
   end
 
   it "raises an error if the second sync byte is wrong" do
-    lambda { Mp3file::MP3Header.new(create_io([ 0xFF, 0xB8, 0x10, 0x01 ])) }
-      .should(raise_error(Mp3file::InvalidMP3HeaderError))
+    lambda { Mp3file::MP3Header.new(create_io([ 0xFF, 0xB8, 0x10, 0x01 ])) }.
+      should(raise_error(Mp3file::InvalidMP3HeaderError))
   end
 
   describe "#version" do
@@ -26,8 +26,8 @@ describe Mp3file::MP3Header do
     end
 
     it "raises an error on an invalid version" do
-      lambda { Mp3file::MP3Header.new(create_io([ 0xFF, 0b1110_1010, 0x10, 0x01 ])) }
-        .should(raise_error(Mp3file::InvalidMP3HeaderError))
+      lambda { Mp3file::MP3Header.new(create_io([ 0xFF, 0b1110_1010, 0x10, 0x01 ])) }.
+        should(raise_error(Mp3file::InvalidMP3HeaderError))
     end
   end
 
@@ -43,8 +43,8 @@ describe Mp3file::MP3Header do
     end
 
     it "raises an error on an invalid version" do
-      lambda { Mp3file::MP3Header.new(create_io([ 0xFF, 0b1111_1000, 0x10, 0x01 ])) }
-        .should(raise_error(Mp3file::InvalidMP3HeaderError))
+      lambda { Mp3file::MP3Header.new(create_io([ 0xFF, 0b1111_1000, 0x10, 0x01 ])) }.
+        should(raise_error(Mp3file::InvalidMP3HeaderError))
     end
   end
 
@@ -71,7 +71,7 @@ describe Mp3file::MP3Header do
       [ "MPEG 2.5 Layer III", 0xE3, [  8, 16, 24,  32,  40,  48,  56,  64,  80,  96, 112, 128, 144, 160 ] ],
     ].each do |version_layer, byte2, bitrates|
       context "for #{version_layer}" do
-        bitrates.each_with_index.each do |br, i|
+        bitrates.each_with_index do |br, i|
           it "detects #{br} kbps" do
             io = create_io([ 0xFF, byte2, (i + 1) << 4, 0x01 ])
             h = Mp3file::MP3Header.new(io)
