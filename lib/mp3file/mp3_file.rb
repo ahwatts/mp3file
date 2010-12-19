@@ -61,21 +61,15 @@ module Mp3file
         @audio_size -= @id3v2tag.size
       end
 
-      # Do the CBR length calculation.  Note that this will be
-      # off by about a second in the presence of an ID3v1 tag.
-      @vbr = false
-      @num_frames = @audio_size / @first_header.frame_size
-      @total_samples = @num_frames * @first_header.samples
-      @length = @total_samples / @samplerate
-
-      # # If it's VBR, there should be an Xing header after the
-      # # side_bytes.
-      # @xing_header = nil
-      # @file.seek(@first_header.side_bytes, IO::SEEK_CUR)
-      # xdata = @file.read(8).unpack("a4N")
-      # if xdata[0] == "Xing"
-      #   @xing_header = XingHeader.new(xdata[1], @file)
-      # end
+      # If it's VBR, there should be an Xing header after the
+      # side_bytes.
+      @xing_header = nil
+      @file.seek(@first_header.side_bytes, IO::SEEK_CUR)
+      begin
+        @xing_header = XingHeader.new(@file)
+      rescue InvalidXingHeaderError => ve
+        @file.seek(@first_header_offset + 4, IO::SEEK_CUR)
+      end
 
       # # There might be a VBRI header after 32 bytes
       # if @xing_header.nil?
@@ -86,15 +80,24 @@ module Mp3file
       #   end
       # end
 
-      # # Do the VBR length calculation.
-      # if @xing_header
-      #   @vbr = true
-      #   if @xing_header.num_frames && @xing_header.num_bytes
-      #     total_samples = @xing_header.num_frames * @first_header.samples
-      #     @length = total_samples / @samplerate
-      #     @bitrate = ((@xing_header.num_bytes.to_f / @length.to_f) * 8 / 1000).to_i
-      #   end
-      # end
+      if @xing_header
+        @vbr = true
+        # Do the VBR length calculation.  What to do if we don't have
+        # both of these pieces of information?
+        if @xing_header.frames && @xing_header.bytes
+          @num_frames = @xing_header.frames
+          @total_samples = @xing_header.frames * @first_header.samples
+          @length = total_samples / @samplerate
+          @bitrate = ((@xing_header.bytes.to_f / @length.to_f) * 8 / 1000).to_i
+        end
+      else
+        # Do the CBR length calculation.  Note that this will be
+        # off by about a second in the presence of an ID3v1 tag.
+        @vbr = false
+        @num_frames = @audio_size / @first_header.frame_size
+        @total_samples = @num_frames * @first_header.samples
+        @length = @total_samples / @samplerate
+      end
 
       @file.close
     end

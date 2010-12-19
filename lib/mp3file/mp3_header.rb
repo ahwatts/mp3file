@@ -1,5 +1,5 @@
 module Mp3file
-  class InvalidMP3HeaderError < StandardError; end
+  class InvalidMP3HeaderError < Mp3fileError; end
 
   class MP3Header
     attr_reader(:version, :layer, :has_crc, :bitrate, 
