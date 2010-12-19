@@ -4,8 +4,8 @@ module Mp3file
     attr_reader(:first_header_offset, :first_header)
     attr_reader(:xing_header_offset, :xing_header)
     attr_reader(:vbri_header_offset, :vbri_header)
-    attr_reader(:mpeg_version, :layer)
-    attr_reader(:bitrate, :samplerate, :length)
+    attr_reader(:mpeg_version, :layer, :bitrate, :samplerate, :mode)
+    attr_reader(:num_frames, :total_samples, :length)
 
     def initialize(file_path)
       file_path = Pathname.new(file_path).expand_path if file_path.is_a?(String)
@@ -13,7 +13,7 @@ module Mp3file
     end
 
     def vbr?
-      @is_vbr
+      @vbr
     end
 
     def id3v1tag?
@@ -55,21 +55,18 @@ module Mp3file
       @layer = @first_header.layer
       @bitrate = @first_header.bitrate / 1000
       @samplerate = @first_header.samplerate
+      @mode = @first_header.mode
       @audio_size = @file_size
       if @id3v2tag
         @audio_size -= @id3v2tag.size
       end
 
-      # # Do the CBR length calculation.  Note that this will be
-      # # off by about a second in the presence of an ID3v1 tag.
-      # @vbr = false
-      # audio_data_size = @file_size
-      # if @id3v2tag
-      #   audio_data_size = @file_size - @id3v2tag.size
-      # end
-      # num_frames = audio_data_size / @first_header.frame_size
-      # total_samples = num_frames * @first_header.samples
-      # @length = total_samples / @samplerate
+      # Do the CBR length calculation.  Note that this will be
+      # off by about a second in the presence of an ID3v1 tag.
+      @vbr = false
+      @num_frames = @audio_size / @first_header.frame_size
+      @total_samples = @num_frames * @first_header.samples
+      @length = @total_samples / @samplerate
 
       # # If it's VBR, there should be an Xing header after the
       # # side_bytes.

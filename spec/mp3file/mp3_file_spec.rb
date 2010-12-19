@@ -16,6 +16,11 @@ describe Mp3file::MP3File do
     its(:layer) { should == 'Layer III' }
     its(:bitrate) { should == 96 }
     its(:samplerate) { should == 32000 }
+    its(:mode) { should == 'Joint Stereo' }
+    its(:num_frames) { should == 141 }
+    its(:total_samples) { should == 162432 }
+    its(:length) { should == 5 }
+    its(:vbr?) { should == false }
   end
 
   # describe "A 96 kbps 34 kHz Joint Stereo CBR file with an ID3v2 tag" do
