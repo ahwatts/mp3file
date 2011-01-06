@@ -1,11 +1,17 @@
 module Mp3file::ID3v2
   class Tag
-    attr_reader(:version, :unsynchronized, :extended_header, :experimental, 
-      :footer, :size)
+    attr_reader(
+      :version, 
+      :unsynchronized, 
+      :extended_header, 
+      :compression,
+      :experimental, 
+      :footer, 
+      :size)
 
     class ID3v2TagFormat < BinData::Record
       string(:tag_id, :length => 3, :check_value => lambda { value == 'ID3' })
-      uint8(:vmaj, :check_value => lambda { value <= 3 })
+      uint8(:vmaj, :check_value => lambda { value >= 2 && value <= 4 })
       uint8(:vmin)
 
       bit1(:unsynchronized)
@@ -20,10 +26,13 @@ module Mp3file::ID3v2
     def initialize(io)
       tag = nil
       begin
-        head = ID3v2TagFormat.read(io)
+        tag = ID3v2TagFormat.read(io)
       rescue BinData::ValidityError => ve
         raise InvalidID3v2TagError, ve.message
       end
+
+      @version = Version.new(tag.vmaj, tag.vmin)
+      # @unsynchronized = tag.unsynchronized == 1
     end
   end
 end
