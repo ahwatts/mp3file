@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "mp3file"
 
   s.add_development_dependency('rspec')
+  s.add_development_dependency('rake')
   s.add_dependency('bindata')
 
   s.files         = `git ls-files`.split("\n")
