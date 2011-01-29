@@ -5,9 +5,9 @@ module Mp3file::ID3v2
     attr_reader(:vbig, :vmaj, :vmin)
 
     def initialize(vmaj, vmin, vbig = 2)
-      @vbig = vbig
-      @vmaj = vmaj
-      @vmin = vmin
+      @vbig = vbig.to_i
+      @vmaj = vmaj.to_i
+      @vmin = vmin.to_i
     end
 
     def <=>(other)

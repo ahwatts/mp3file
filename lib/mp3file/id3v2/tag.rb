@@ -32,7 +32,22 @@ module Mp3file::ID3v2
       end
 
       @version = Version.new(tag.vmaj, tag.vmin)
-      # @unsynchronized = tag.unsynchronized == 1
+
+      @unsynchronized = false
+      @extended_header = false
+      @compression = false
+      @experimental = false
+      @footer = false
+
+      if @version >= ID3V2_2_0 && @version < ID3V2_3_0
+        @unsynchronized = tag.unsynchronized == 1
+        # Bit 6 was redefined if v2.3.0+, and we picked the new name
+        # for it above.
+        @compression = tag.extended_header == 1
+        if tag.experimental == 1 || tag.footer == 1
+          raise InvalidID3v2TagError, "Invalid flag set in ID3v2.2 tag"
+        end
+      end
     end
   end
 end
