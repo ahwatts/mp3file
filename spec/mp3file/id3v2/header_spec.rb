@@ -14,6 +14,11 @@ describe Mp3file::ID3v2::Header do
     lambda { Mp3file::ID3v2::Header.new(io) }.should(raise_error(Mp3file::ID3v2::InvalidID3v2TagError))
   end
 
+  it "raises an error if the major version is less than 2 (e.g., no ID3v2.1.0)" do
+    io = StringIO.new("ID3\x01\x00\x00\x00\x00\x00\x00")
+    lambda { Mp3file::ID3v2::Header.new(io) }.should(raise_error(Mp3file::ID3v2::InvalidID3v2TagError))
+  end
+
   describe "flags:" do
     describe "An ID3v2.2 header with no set flags:" do
       subject { Mp3file::ID3v2::Header.new(StringIO.new("ID3\x02\x00\x00\x00\x00\x00\x00")) }
