@@ -71,6 +71,33 @@ describe Mp3file::ID3v2::Tag do
       its(:experimental) { should == true }
       its(:footer) { should == false }
     end
+
+    describe "An ID3v2.3 tag with the experimental header flag set:" do
+      subject { Mp3file::ID3v2::Tag.new(StringIO.new("ID3\x03\x00\x20\x00\x00\x00\x00")) }
+      its(:version) { should == Mp3file::ID3v2::ID3V2_3_0 }
+      its(:unsynchronized) { should == false }
+      its(:extended_header) { should == false }
+      its(:compression) { should == false }
+      its(:experimental) { should == true }
+      its(:footer) { should == false }
+    end
+
+    describe "An ID3v2.3 tag with an invalid flag set" do
+      it "raises an error" do
+        lambda { Mp3file::ID3v2::Tag.new(StringIO.new("ID3\x03\x00\x10\x00\x00\x00\x00")) }.
+          should(raise_error(Mp3file::ID3v2::InvalidID3v2TagError))
+      end
+    end
+
+    describe "An ID3v2.4 tag with the footer header flag set:" do
+      subject { Mp3file::ID3v2::Tag.new(StringIO.new("ID3\x04\x00\x10\x00\x00\x00\x00")) }
+      its(:version) { should == Mp3file::ID3v2::ID3V2_4_0 }
+      its(:unsynchronized) { should == false }
+      its(:extended_header) { should == false }
+      its(:compression) { should == false }
+      its(:experimental) { should == false }
+      its(:footer) { should == true }
+    end
   end
 
   describe "#version" do

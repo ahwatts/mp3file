@@ -51,7 +51,14 @@ module Mp3file::ID3v2
         @unsynchronized = tag.unsynchronized == 1
         @extended_header = tag.extended_header == 1
         @experimental = tag.experimental == 1
-      # elsif @version >= ID3V2_4_0 
+        if tag.footer == 1
+          raise InvalidID3v2TagError, "Invalid flag set in ID3v2.3 tag"
+        end
+      elsif @version >= ID3V2_4_0 
+        @unsynchronized = tag.unsynchronized == 1
+        @extended_header = tag.extended_header == 1
+        @experimental = tag.experimental == 1
+        @footer = tag.footer == 1
       end
     end
   end
