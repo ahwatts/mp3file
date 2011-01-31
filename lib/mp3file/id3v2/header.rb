@@ -1,5 +1,5 @@
 module Mp3file::ID3v2
-  class Tag
+  class Header
     attr_reader(
       :version, 
       :unsynchronized, 
@@ -7,9 +7,9 @@ module Mp3file::ID3v2
       :compression,
       :experimental, 
       :footer, 
-      :size)
+      :tag_size)
 
-    class ID3v2TagFormat < BinData::Record
+    class ID3v2HeaderFormat < BinData::Record
       string(:tag_id, :length => 3, :check_value => lambda { value == 'ID3' })
       uint8(:vmaj, :check_value => lambda { value >= 2 && value <= 4 })
       uint8(:vmin)
@@ -24,14 +24,14 @@ module Mp3file::ID3v2
     end
 
     def initialize(io)
-      tag = nil
+      header = nil
       begin
-        tag = ID3v2TagFormat.read(io)
+        header = ID3v2HeaderFormat.read(io)
       rescue BinData::ValidityError => ve
         raise InvalidID3v2TagError, ve.message
       end
 
-      @version = Version.new(tag.vmaj, tag.vmin)
+      @version = Version.new(header.vmaj, header.vmin)
 
       @unsynchronized = false
       @extended_header = false
@@ -40,28 +40,28 @@ module Mp3file::ID3v2
       @footer = false
 
       if @version >= ID3V2_2_0 && @version < ID3V2_3_0
-        @unsynchronized = tag.unsynchronized == 1
+        @unsynchronized = header.unsynchronized == 1
         # Bit 6 was redefined if v2.3.0+, and we picked the new name
         # for it above.
-        @compression = tag.extended_header == 1
-        if tag.experimental == 1 || tag.footer == 1
-          raise InvalidID3v2TagError, "Invalid flag set in ID3v2.2 tag"
+        @compression = header.extended_header == 1
+        if header.experimental == 1 || header.footer == 1
+          raise InvalidID3v2TagError, "Invalid flag set in ID3v2.2 header"
         end
       elsif @version >= ID3V2_3_0 && @version < ID3V2_4_0
-        @unsynchronized = tag.unsynchronized == 1
-        @extended_header = tag.extended_header == 1
-        @experimental = tag.experimental == 1
-        if tag.footer == 1
-          raise InvalidID3v2TagError, "Invalid flag set in ID3v2.3 tag"
+        @unsynchronized = header.unsynchronized == 1
+        @extended_header = header.extended_header == 1
+        @experimental = header.experimental == 1
+        if header.footer == 1
+          raise InvalidID3v2TagError, "Invalid flag set in ID3v2.3 header"
         end
       elsif @version >= ID3V2_4_0 
-        @unsynchronized = tag.unsynchronized == 1
-        @extended_header = tag.extended_header == 1
-        @experimental = tag.experimental == 1
-        @footer = tag.footer == 1
+        @unsynchronized = header.unsynchronized == 1
+        @extended_header = header.extended_header == 1
+        @experimental = header.experimental == 1
+        @footer = header.footer == 1
       end
 
-      @size = BitPaddedInt.unpad_number(tag.size_padded) + 10
+      @tag_size = BitPaddedInt.unpad_number(header.size_padded)
     end
   end
 end
