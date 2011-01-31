@@ -60,6 +60,8 @@ module Mp3file::ID3v2
         @experimental = tag.experimental == 1
         @footer = tag.footer == 1
       end
+
+      @size = BitPaddedInt.unpad_number(tag.size_padded) + 10
     end
   end
 end

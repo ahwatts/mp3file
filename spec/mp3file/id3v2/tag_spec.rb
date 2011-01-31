@@ -117,6 +117,13 @@ describe Mp3file::ID3v2::Tag do
     end
   end
 
+  describe "#size" do
+    it "properly reads the size of an ID3v2 tag" do
+      t = Mp3file::ID3v2::Tag.new(StringIO.new("ID3\x03\x00\x00\x00\x06\x49\x37"))
+      t.size.should == 107713
+    end
+  end
+
   describe "flags for ID3v2.2" do
     describe "An ID3v2.2 tag with no set flags" do
       subject { Mp3file::ID3v2::Tag.new(StringIO.new("ID3\x02\x00\x00\x00\x00\x00\x00")) }
