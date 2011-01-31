@@ -4,5 +4,6 @@ module Mp3file
   end
 end
 
+require 'mp3file/id3v2/bit_padded_int'
 require 'mp3file/id3v2/version'
 require 'mp3file/id3v2/tag'
