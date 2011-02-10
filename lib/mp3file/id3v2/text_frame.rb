@@ -1,4 +1,4 @@
 module Mp3file::ID3v2
-  class TextFrame < Frame
+  class TextFrame
   end
 end
