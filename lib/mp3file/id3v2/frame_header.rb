@@ -42,6 +42,15 @@ module Mp3file::ID3v2
 
     def initialize(io, tag)
       @tag = tag
+      header = nil
+      @preserve_on_altered_tag = false
+      @preserve_on_altered_file = false
+      @read_only = false
+      @compressed = false
+      @encrypted = false
+      @group = false
+      @unsynchronized = false
+      @data_length = 0
 
       if @tag.version >= ID3V2_2_0 && @tag.version < ID3V2_3_0
         header = ID3v220FrameHeaderFormat.read(io)
@@ -50,6 +59,9 @@ module Mp3file::ID3v2
       elsif @tag.version >= ID3v2_4_0
         header = ID3v240FrameHeaderFormat.read(i0)
       end
+
+      @frame_id = header.frame_id
+      @size = BitPaddedInt.unpad_number(header.frame_size)
     end
   end
 end
