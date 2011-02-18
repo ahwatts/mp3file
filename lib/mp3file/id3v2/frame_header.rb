@@ -14,8 +14,10 @@ module Mp3file::ID3v2
       bit5(:unused1, :check_value => lambda { value == 0 })
       bit1(:compression)
       bit1(:encryption)
-      bit1(:group)
+      bit1(:has_group)
       bit5(:unused2, :check_value => lambda { value == 0 })
+      uint8(:encryption_type, :onlyif => lambda { encryption == 1 })
+      uint8(:group_id, :onlyif => lambda { has_group == 1 })
     end
 
     class ID3v240FrameHeaderFormat < BinData::Record
@@ -37,8 +39,8 @@ module Mp3file::ID3v2
 
     attr_reader(:frame_id, :size,
       :preserve_on_altered_tag, :preserve_on_altered_file,
-      :read_only, :compressed, :encrypted, :group,
-      :unsynchronized, :data_length)
+      :read_only, :compressed, :encrypted, :encryption_type,
+      :group, :unsynchronized, :data_length)
 
     def initialize(io, tag)
       @tag = tag
@@ -48,7 +50,7 @@ module Mp3file::ID3v2
       @read_only = false
       @compressed = false
       @encrypted = false
-      @group = false
+      @group = nil
       @unsynchronized = false
       @data_length = 0
 
@@ -56,6 +58,17 @@ module Mp3file::ID3v2
         header = ID3v220FrameHeaderFormat.read(io)
       elsif @tag.version >= ID3V2_3_0 && @tag.version < ID3V2_4_0
         header = ID3v230FrameHeaderFormat.read(io)
+        @preserve_on_altered_tag = header.tag_alter_preserve == 1
+        @preserve_on_altered_file = header.file_alter_preserve == 1
+        @read_only = header.read_only == 1
+        @compressed = header.compression == 1
+        if header.encryption == 1
+          @encrypted = true
+          @encryption_type = header.encryption_type
+        end
+        if header.has_group == 1
+          @group = header.group_id
+        end
       elsif @tag.version >= ID3v2_4_0
         header = ID3v240FrameHeaderFormat.read(i0)
       end

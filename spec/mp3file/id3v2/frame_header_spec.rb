@@ -16,7 +16,8 @@ describe Mp3file::ID3v2::FrameHeader do
       its(:read_only) { should == false }
       its(:compressed) { should == false }
       its(:encrypted) { should == false }
-      its(:group) { should == false }
+      its(:encryption_type) { should be_nil }
+      its(:group) { should be_nil }
       its(:unsynchronized) { should == false }
       its(:data_length) { should == 0 }
     end
@@ -34,7 +35,8 @@ describe Mp3file::ID3v2::FrameHeader do
       its(:read_only) { should == false }
       its(:compressed) { should == false }
       its(:encrypted) { should == false }
-      its(:group) { should == false }
+      its(:encryption_type) { should be_nil }
+      its(:group) { should be_nil }
       its(:unsynchronized) { should == false }
       its(:data_length) { should == 0 }
     end
