@@ -54,23 +54,27 @@ module Mp3file::ID3v2
       @unsynchronized = false
       @data_length = 0
 
-      if @tag.version >= ID3V2_2_0 && @tag.version < ID3V2_3_0
-        header = ID3v220FrameHeaderFormat.read(io)
-      elsif @tag.version >= ID3V2_3_0 && @tag.version < ID3V2_4_0
-        header = ID3v230FrameHeaderFormat.read(io)
-        @preserve_on_altered_tag = header.tag_alter_preserve == 1
-        @preserve_on_altered_file = header.file_alter_preserve == 1
-        @read_only = header.read_only == 1
-        @compressed = header.compression == 1
-        if header.encryption == 1
-          @encrypted = true
-          @encryption_type = header.encryption_type
+      begin
+        if @tag.version >= ID3V2_2_0 && @tag.version < ID3V2_3_0
+          header = ID3v220FrameHeaderFormat.read(io)
+        elsif @tag.version >= ID3V2_3_0 && @tag.version < ID3V2_4_0
+          header = ID3v230FrameHeaderFormat.read(io)
+          @preserve_on_altered_tag = header.tag_alter_preserve == 1
+          @preserve_on_altered_file = header.file_alter_preserve == 1
+          @read_only = header.read_only == 1
+          @compressed = header.compression == 1
+          if header.encryption == 1
+            @encrypted = true
+            @encryption_type = header.encryption_type
+          end
+          if header.has_group == 1
+            @group = header.group_id
+          end
+        elsif @tag.version >= ID3v2_4_0
+          header = ID3v240FrameHeaderFormat.read(i0)
         end
-        if header.has_group == 1
-          @group = header.group_id
-        end
-      elsif @tag.version >= ID3v2_4_0
-        header = ID3v240FrameHeaderFormat.read(i0)
+      rescue BinData::ValidityError => ve
+        raise InvalidID3v2TagError, ve.message
       end
 
       @frame_id = header.frame_id
