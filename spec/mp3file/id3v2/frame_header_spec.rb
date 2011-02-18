@@ -21,4 +21,22 @@ describe Mp3file::ID3v2::FrameHeader do
       its(:data_length) { should == 0 }
     end
   end
+  
+  context "with ID3v2.3 tags" do
+    let(:tag) { Mp3file::ID3v2::Tag.new(StringIO.new("ID3\x03\x00\x00\x00\x00\x00\x00")) }
+    
+    describe("A 9-byte TIT2 frame header.") do
+      subject { Mp3file::ID3v2::FrameHeader.new(StringIO.new("TIT2\x00\x00\x00\x09\x00\x00"), tag) }
+      its(:frame_id) { should == 'TIT2' }
+      its(:size) { should == 9 }
+      its(:preserve_on_altered_tag) { should == false }
+      its(:preserve_on_altered_file) { should == false }
+      its(:read_only) { should == false }
+      its(:compressed) { should == false }
+      its(:encrypted) { should == false }
+      its(:group) { should == false }
+      its(:unsynchronized) { should == false }
+      its(:data_length) { should == 0 }
+    end
+  end
 end
