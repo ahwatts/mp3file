@@ -41,7 +41,7 @@ module Mp3file::ID3v2
 
       if @version >= ID3V2_2_0 && @version < ID3V2_3_0
         @unsynchronized = header.unsynchronized == 1
-        # Bit 6 was redefined if v2.3.0+, and we picked the new name
+        # Bit 6 was redefined in v2.3.0+, and we picked the new name
         # for it above.
         @compression = header.extended_header == 1
         if header.experimental == 1 || header.footer == 1
