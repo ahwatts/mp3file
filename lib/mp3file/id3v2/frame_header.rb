@@ -70,8 +70,8 @@ module Mp3file::ID3v2
           if header.has_group == 1
             @group = header.group_id
           end
-        elsif @tag.version >= ID3v2_4_0
-          header = ID3v240FrameHeaderFormat.read(i0)
+        elsif @tag.version >= ID3V2_4_0
+          header = ID3v240FrameHeaderFormat.read(io)
         end
       rescue BinData::ValidityError => ve
         raise InvalidID3v2TagError, ve.message

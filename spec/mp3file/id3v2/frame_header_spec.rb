@@ -64,4 +64,16 @@ describe Mp3file::ID3v2::FrameHeader do
       its(:data_length) { should == 0 }
     end
   end
+
+  context "with ID3v2.4 tags" do
+    let(:tag) { Mp3file::ID3v2::Tag.new(StringIO.new("ID3\x04\x00\x00\x00\x00\x00\x00")) }
+
+    describe("A header with invalid flag bits set") do
+      it("Should raise an error") do
+        io = StringIO.new("TIT2\x00\x00\x00\x09\x01\x00")
+        lambda { Mp3file::ID3v2::FrameHeader.new(io, tag) }.
+          should(raise_error(Mp3file::ID3v2::InvalidID3v2TagError))
+      end
+    end
+  end
 end
