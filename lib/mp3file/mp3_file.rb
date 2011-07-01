@@ -79,6 +79,20 @@ module Mp3file
       end
       @file.seek(0, IO::SEEK_SET)
 
+      # Try to detect an ID3v2 header.
+      @id3v2_header = nil
+      begin
+        @id3v2_header = ID3v2::Header.new(@file)
+      rescue ID3v2::InvalidID3v2TagError => e
+        @id3v2_header = nil
+        @file.seek(0, IO::SEEK_SET)
+      end
+
+      # Skip past the ID3v2 header if it's present.
+      if @id3v2_header
+        @file.seek(@id3v2_header.tag_size + 10, IO::SEEK_SET)
+      end
+
       # Try to find the first MP3 header.
       @first_header_offset, @first_header = get_next_header(@file)
 
@@ -90,6 +104,9 @@ module Mp3file
       @audio_size = @file_size
       if @id3v1_tag
         @audio_size -= 128
+      end
+      if @id3v2_header
+        @audio_size -= (@id3v2_header.tag_size + 10)
       end
 
       # If it's VBR, there should be an Xing header after the
