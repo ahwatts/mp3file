@@ -87,4 +87,11 @@ describe Mp3file::MP3File do
     its(:length) { should == 5 }
     its(:vbr?) { should == false }
   end
+
+  describe "A file consisting only of zeroes" do
+    it "raises an error" do
+      lambda { Mp3file::MP3File.new(fixture_file('zeroes.mp3')) }.
+        should(raise_error(Mp3file::InvalidMP3FileError))
+    end
+  end
 end

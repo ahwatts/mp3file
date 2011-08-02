@@ -3,7 +3,7 @@ require 'pathname'
 require 'rubygems'
 require 'bindata'
 
-class Mp3fileError < StandardError; end
+class Mp3file::Mp3fileError < StandardError; end
 
 require 'mp3file/mp3_file'
 require 'mp3file/mp3_header'

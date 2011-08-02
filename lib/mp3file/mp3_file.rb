@@ -1,4 +1,6 @@
 module Mp3file
+  class InvalidMP3FileError < Mp3fileError; end
+
   class MP3File
     attr_reader(:file, :file_size, :audio_size)
     attr_reader(:first_header_offset, :first_header)
@@ -146,6 +148,7 @@ module Mp3file
       end
 
       header = nil
+      initial_header_offset = file.tell
       header_offset = file.tell
 
       while header.nil?
@@ -154,8 +157,12 @@ module Mp3file
           header_offset = file.tell - 4
         rescue InvalidMP3HeaderError => e
           header_offset += 1
-          file.seek(header_offset, IO::SEEK_SET)
-          retry
+          if header_offset - initial_header_offset > 4096
+            raise InvalidMP3FileError, "Could not find a valid MP3 header in the first 4096 bytes."
+          else
+            file.seek(header_offset, IO::SEEK_SET)
+            retry
+          end
         end
 
         # byte = file.readbyte
