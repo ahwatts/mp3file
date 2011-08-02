@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mp3file (0.0.3)
+    mp3file (0.0.4)
       bindata
 
 GEM
