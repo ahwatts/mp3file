@@ -1,0 +1,49 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH << File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
+require 'mp3file'
+
+ARGV.each do |file|
+  begin
+    mp3 = Mp3file::MP3File.new(file)
+
+    puts("File: #{mp3.file.path}")
+    puts("    Size: #{mp3.file_size} bytes Audio_size: #{mp3.audio_size} bytes")
+    puts("    #{mp3.mpeg_version} #{mp3.layer}")
+    puts("    Bitrate: #{mp3.bitrate} kbps Samplerate: #{mp3.samplerate} Hz Mode: #{mp3.mode}")
+    puts("    Duration: #{mp3.length} s")
+    puts("    Frames: #{mp3.num_frames} Samples: #{mp3.total_samples}")
+
+    header = mp3.first_header
+    puts("    First MPEG frame at #{mp3.first_header_offset} bytes:")
+    puts("        #{header.version} #{header.layer}")
+    puts("        Bitrate: #{header.bitrate} bps Samplerate: #{header.samplerate} Hz")
+    puts("        Mode: #{header.mode} Mode Extension: #{header.mode_extension} Emphasis: #{header.emphasis}")
+    puts("        CRC: #{header.has_crc} Padding: #{header.has_padding}")
+    puts("        Copyright: #{header.copyright} Original: #{header.original}")
+    puts("        Samples: #{header.samples} Frame size: #{header.frame_size} Side bytes: #{header.side_bytes}")
+
+    if mp3.xing_header
+      xing = mp3.xing_header
+      puts("    Xing header:")
+      puts("        Frames: #{xing.frames} Bytes: #{xing.bytes} Quality: #{xing.quality} TOC: #{xing.toc ? 'present' : 'not present'}")
+    end
+
+    if mp3.vbri_header
+      puts("    VBRI header!")
+    end
+
+    if mp3.id3v1tag?
+      puts("    ID3v1 tag!")
+    end
+
+    if mp3.id3v2tag?
+      puts("    ID3v2 tag!")
+    end
+
+    puts
+  rescue
+    $stderr.puts("Exception reading MP3 file %s: %s (%p)\n\t%s" %
+      [ file, $!.message, $!.class, $!.backtrace.join("\n\t") ])
+  end
+end
