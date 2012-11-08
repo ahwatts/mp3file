@@ -117,7 +117,7 @@ module Mp3file
       @file.seek(@first_header.side_bytes, IO::SEEK_CUR)
       begin
         @xing_header = XingHeader.new(@file)
-      rescue InvalidXingHeaderError => ve
+      rescue InvalidXingHeaderError
         @file.seek(@first_header_offset + 4, IO::SEEK_CUR)
       end
 
@@ -155,7 +155,7 @@ module Mp3file
         begin
           header = MP3Header.new(file)
           header_offset = file.tell - 4
-        rescue InvalidMP3HeaderError => e
+        rescue InvalidMP3HeaderError
           header_offset += 1
           if header_offset - initial_header_offset > 4096
             raise InvalidMP3FileError, "Could not find a valid MP3 header in the first 4096 bytes."
