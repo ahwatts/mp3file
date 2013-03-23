@@ -9,7 +9,7 @@ module Mp3file
     attr_reader(:mpeg_version, :layer, :bitrate, :samplerate, :mode)
     attr_reader(:num_frames, :total_samples, :length)
 
-    attr_accessor(:id3v1_tag)
+    attr_accessor(:id3v1_tag, :id3v2_tag)
 
     def initialize(file_path)
       file_path = Pathname.new(file_path).expand_path if file_path.is_a?(String)
@@ -82,17 +82,17 @@ module Mp3file
       @file.seek(0, IO::SEEK_SET)
 
       # Try to detect an ID3v2 header.
-      @id3v2_header = nil
+      @id3v2_tag = nil
       begin
-        @id3v2_header = ID3v2::Header.new(@file)
+        @id3v2_tag = ID3v2::Tag.new(@file)
       rescue ID3v2::InvalidID3v2TagError => e
-        @id3v2_header = nil
+        @id3v2_tag = nil
         @file.seek(0, IO::SEEK_SET)
       end
 
       # Skip past the ID3v2 header if it's present.
-      if @id3v2_header
-        @file.seek(@id3v2_header.tag_size + 10, IO::SEEK_SET)
+      if @id3v2_tag
+        @file.seek(@id3v2_tag.size, IO::SEEK_SET)
       end
 
       # Try to find the first MP3 header.

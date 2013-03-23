@@ -2,7 +2,7 @@ module Mp3file
   class InvalidID3v1TagError < Mp3fileError; end
 
   class ID3v1Tag
-    attr_accessor(:title, :artist, :album, :year, :comment, :track, :genre)
+    attr_accessor(:title, :artist, :album, :year, :comment, :track, :genre_id, :genre)
 
     class ID3v1TagFormat < BinData::Record
       string(:tag_id, :length => 3, :check_value => lambda { value == 'TAG' })
@@ -52,6 +52,7 @@ module Mp3file
       if split_comment.size > 1
         @track = split_comment.last.bytes.first
       end
+      @genre_id = @tag.genre_id
       @genre = GENRES[@tag.genre_id]
     end
   end

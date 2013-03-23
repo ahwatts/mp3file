@@ -34,11 +34,21 @@ ARGV.each do |file|
     end
 
     if mp3.id3v1tag?
-      puts("    ID3v1 tag!")
+      tag = mp3.id3v1_tag
+      puts("    ID3v1 tag:")
+      puts("        Title: #{tag.title.inspect}")
+      puts("        Artist: #{tag.artist.inspect}")
+      puts("        Album: #{tag.album.inspect}")
+      puts("        Year: #{tag.year.inspect}")
+      puts("        Comment: #{tag.comment.inspect}")
+      puts("        Genre: #{tag.genre.inspect} (#{tag.genre_id.inspect})")
     end
 
     if mp3.id3v2tag?
+      tag = mp3.id3v2_tag
       puts("    ID3v2 tag!")
+      puts("        Size: #{tag.size} bytes")
+      puts("        Version: #{tag.version.inspect}")
     end
 
     puts
