@@ -46,9 +46,16 @@ ARGV.each do |file|
 
     if mp3.id3v2tag?
       tag = mp3.id3v2_tag
-      puts("    ID3v2 tag!")
+      puts("    ID3v2 tag:")
       puts("        Size: #{tag.size} bytes")
       puts("        Version: #{tag.version.inspect}")
+      if !mp3.id3v2_tag.frames.empty?
+        puts("        Frames:")
+        mp3.id3v2_tag.frames.each do |frame|
+          puts("            ID: #{frame.frame_id.inspect}")
+          puts("            size: #{frame.size}")
+        end
+      end
     end
 
     puts

@@ -76,6 +76,7 @@ module Mp3file
       @file.seek(-128, IO::SEEK_END)
       begin
         @id3v1_tag = ID3v1Tag.new(@file)
+        puts "Found ID3v1 tag!"
       rescue InvalidID3v1TagError => e
         @id3v1_tag = nil
       end
@@ -85,6 +86,7 @@ module Mp3file
       @id3v2_tag = nil
       begin
         @id3v2_tag = ID3v2::Tag.new(@file)
+        puts "Found ID3v2 tag!"
       rescue ID3v2::InvalidID3v2TagError => e
         @id3v2_tag = nil
         @file.seek(0, IO::SEEK_SET)
@@ -92,8 +94,11 @@ module Mp3file
 
       # Skip past the ID3v2 header if it's present.
       if @id3v2_tag
+        puts "ID3v2 tag size = #{@id3v2_tag.size}"
         @file.seek(@id3v2_tag.size, IO::SEEK_SET)
       end
+
+      puts "File position: #{@file.tell}"
 
       # Try to find the first MP3 header.
       @first_header_offset, @first_header = get_next_header(@file)
@@ -158,6 +163,7 @@ module Mp3file
         rescue InvalidMP3HeaderError
           header_offset += 1
           if header_offset - initial_header_offset > 4096
+            puts "file position: #{file.tell}"
             raise InvalidMP3FileError, "Could not find a valid MP3 header in the first 4096 bytes."
           else
             file.seek(header_offset, IO::SEEK_SET)
