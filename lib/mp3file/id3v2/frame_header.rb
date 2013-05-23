@@ -30,9 +30,9 @@ module Mp3file::ID3v2
 
       bit4(:unused2, :check_value => lambda { value == 0 })
 
-      bit1(:unused3) # , :check_value => lambda { value == 0 })
+      bit1(:unused3, :check_value => lambda { value == 0 })
       bit1(:group)
-      bit2(:unused4) # , :check_value => lambda { value == 0 })
+      bit2(:unused4, :check_value => lambda { value == 0 })
 
       bit1(:compression)
       bit1(:encryption)
