@@ -12,7 +12,6 @@ module Mp3file::ID3v2
     def initialize(io)
       @header = Header.new(io)
       @unused_bytes = 0
-      puts("Found ID3v2 tag! size = #{@header.tag_size}")
       load_frames(io)
     end
 
@@ -20,7 +19,6 @@ module Mp3file::ID3v2
       @frames = []
       frame_offset, frame = get_next_frame_header(io)
       while frame
-        puts("Found frame at offset #{frame_offset}: #{frame.frame_id.inspect}")
         @frames << frame
         frame_offset, frame = get_next_frame_header(io)
       end
@@ -42,9 +40,8 @@ module Mp3file::ID3v2
         frame_offset = io.tell
         frame = FrameHeader.new(io, self)
         io.seek(io.tell + frame.size, IO::SEEK_SET)
-        if frame.frame_id =~ /[A-Z]{3,4}/
+        if frame.frame_id.to_s =~ /[A-Z0-9]{3,4}/
           @unused_bytes = 0
-          puts("read frame id #{frame.frame_id.inspect} (size: #{frame.size}) at offset #{frame_offset}")
           return [ frame_offset, frame ]
         else
           frame = nil

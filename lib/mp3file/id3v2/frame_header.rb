@@ -27,10 +27,13 @@ module Mp3file::ID3v2
       bit1(:tag_alter_preserve)
       bit1(:file_alter_preserve)
       bit1(:read_only)
+
       bit4(:unused2, :check_value => lambda { value == 0 })
-      bit1(:unused3, :check_value => lambda { value == 0 })
+
+      bit1(:unused3) # , :check_value => lambda { value == 0 })
       bit1(:group)
-      bit2(:unused4, :check_value => lambda { value == 0 })
+      bit2(:unused4) # , :check_value => lambda { value == 0 })
+
       bit1(:compression)
       bit1(:encryption)
       bit1(:unsynchronized)

@@ -36,12 +36,12 @@ ARGV.each do |file|
     if mp3.id3v1tag?
       tag = mp3.id3v1_tag
       puts("    ID3v1 tag:")
-      puts("        Title: #{tag.title.inspect}")
-      puts("        Artist: #{tag.artist.inspect}")
-      puts("        Album: #{tag.album.inspect}")
-      puts("        Year: #{tag.year.inspect}")
+      puts("        Title:   #{tag.title.inspect}")
+      puts("        Artist:  #{tag.artist.inspect}")
+      puts("        Album:   #{tag.album.inspect}")
+      puts("        Year:    #{tag.year.inspect}")
       puts("        Comment: #{tag.comment.inspect}")
-      puts("        Genre: #{tag.genre.inspect} (#{tag.genre_id.inspect})")
+      puts("        Genre:   #{tag.genre.inspect} (#{tag.genre_id.inspect})")
     end
 
     if mp3.id3v2tag?
@@ -49,11 +49,11 @@ ARGV.each do |file|
       puts("    ID3v2 tag:")
       puts("        Size: #{tag.size} bytes")
       puts("        Version: #{tag.version.inspect}")
+      puts("        Unused byes: #{tag.unused_bytes.inspect}")
       if !mp3.id3v2_tag.frames.empty?
         puts("        Frames:")
         mp3.id3v2_tag.frames.each do |frame|
-          puts("            ID: #{frame.frame_id.inspect}")
-          puts("            size: #{frame.size}")
+          puts("            ID: #{frame.frame_id.inspect} size: #{frame.size}")
         end
       end
     end
