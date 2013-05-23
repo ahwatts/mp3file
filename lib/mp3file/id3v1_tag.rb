@@ -35,25 +35,40 @@ module Mp3file
         Samba Folklore Ballad Power\ Ballad Rhythmic\ Soul Freestyle Duet Punk\ Rock 
         Drum\ Solo A\ capella Euro-House Dance\ Hall }
 
-    def initialize(io)
-      @tag = nil
+    def self.parse(io)
+      tag_data = nil
+
       begin
-        @tag = ID3v1TagFormat.read(io)
+        tag_data = ID3v1TagFormat.read(io)
       rescue BinData::ValidityError => ve
-        raise InvalidID3v1TagError, ve.message
+        unless ve.message =~ /value.*not as expected for.*tag_id/
+          raise InvalidID3v1TagError, ve.message
+        end
       end
 
-      @title = @tag.title.split("\x00").first
-      @artist = @tag.artist.split("\x00").first
-      @album = @tag.album.split("\x00").first
-      @year = @tag.year
-      split_comment = @tag.comment.split("\x00").reject { |s| s == '' }
+      if tag_data.nil?
+        nil
+      else
+        new.tap { |rv| rv.load_format(tag_data) }
+      end
+    end
+
+    def load_format(tag_data)
+      @title = tag_data.title.split("\x00").first
+      @artist = tag_data.artist.split("\x00").first
+      @album = tag_data.album.split("\x00").first
+      @year = tag_data.year
+      split_comment = tag_data.comment.split("\x00").reject { |s| s == '' }
       @comment = split_comment.first
       if split_comment.size > 1
         @track = split_comment.last.bytes.first
       end
-      @genre_id = @tag.genre_id
-      @genre = GENRES[@tag.genre_id]
+      @genre_id = tag_data.genre_id
+      @genre = GENRES[tag_data.genre_id]
+    end
+
+    def initialize
+      @title = @artist = @album = @year = @comment = @track = @genre_id = @genre = nil
     end
   end
 end

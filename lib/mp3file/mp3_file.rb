@@ -74,24 +74,18 @@ module Mp3file
       # Try to read an ID3v1 tag.
       @id3v1_tag = nil
       @file.seek(-128, IO::SEEK_END)
-      begin
-        @id3v1_tag = ID3v1Tag.new(@file)
-      rescue InvalidID3v1TagError => e
-        $stderr.puts "Error parsing ID3v1 tag: %s\n\t%s" %
-          [ e.message, e.backtrace.join("\n\t") ]
-        @id3v1_tag = nil
-      end
+      @id3v1_tag = ID3v1Tag.parse(@file)
       @file.seek(0, IO::SEEK_SET)
 
       # Try to detect an ID3v2 header.
       @id3v2_tag = nil
       begin
         @id3v2_tag = ID3v2::Tag.new(@file)
-      rescue ID3v2::InvalidID3v2TagError => e
-        $stderr.puts "Error parsing ID3v2 tag: %s\n\t%s" %
-          [ e.message, e.backtrace.join("\n\t") ]
-        @id3v2_tag = nil
-        @file.seek(0, IO::SEEK_SET)
+      # rescue ID3v2::InvalidID3v2TagError => e
+      #   $stderr.puts "Error parsing ID3v2 tag: %s\n\t%s" %
+      #     [ e.message, e.backtrace.join("\n\t") ]
+      #   @id3v2_tag = nil
+      #   @file.seek(0, IO::SEEK_SET)
       end
 
       # Skip past the ID3v2 header if it's present.

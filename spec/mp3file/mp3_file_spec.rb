@@ -70,7 +70,7 @@ describe Mp3file::MP3File do
 
   describe "A 96 kbps 34 kHz Joint Stereo CBR file with an ID3v2 tag" do
     subject { Mp3file::MP3File.new(fixture_file('bret_id3v2.mp3')) }
-    # its(:id3v2tag?) { should == true }
+    its(:id3v2tag?) { should == true }
     its(:id3v1tag?) { should == false }
     its("file.path") { should == fixture_file('bret_id3v2.mp3').to_s }
     its("file.closed?") { should == true }
