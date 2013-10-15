@@ -40,7 +40,7 @@ module Mp3file::ID3v2
       bit1(:data_length_indicator)
     end
 
-    attr_reader(:frame_id, :size,
+    attr_reader(:frame_id, :header_size, :frame_size, :size,
       :preserve_on_altered_tag, :preserve_on_altered_file,
       :read_only, :compressed, :encrypted, :encryption_type,
       :group, :unsynchronized, :data_length)
@@ -60,8 +60,10 @@ module Mp3file::ID3v2
       begin
         if @tag.version >= ID3V2_2_0 && @tag.version < ID3V2_3_0
           header = ID3v220FrameHeaderFormat.read(io)
+          @header_size = 6
         elsif @tag.version >= ID3V2_3_0 && @tag.version < ID3V2_4_0
           header = ID3v230FrameHeaderFormat.read(io)
+          @header_size = 10
           @preserve_on_altered_tag = header.tag_alter_preserve == 1
           @preserve_on_altered_file = header.file_alter_preserve == 1
           @read_only = header.read_only == 1
@@ -75,13 +77,15 @@ module Mp3file::ID3v2
           end
         elsif @tag.version >= ID3V2_4_0
           header = ID3v240FrameHeaderFormat.read(io)
+          @header_size = 10
         end
       rescue BinData::ValidityError => ve
         raise InvalidID3v2TagError, ve.message
       end
 
       @frame_id = header.frame_id
-      @size = BitPaddedInt.unpad_number(header.frame_size)
+      @frame_size = BitPaddedInt.unpad_number(header.frame_size)
+      @size = @header_size + @frame_size
     end
   end
 end

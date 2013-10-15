@@ -53,7 +53,7 @@ ARGV.each do |file|
       if !mp3.id3v2_tag.frames.empty?
         puts("        Frames:")
         mp3.id3v2_tag.frames.each do |frame|
-          puts("            ID: #{frame.frame_id.inspect} size: #{frame.size}")
+          puts("            ID: #{frame.frame_id.inspect} size: #{frame.frame_size}")
         end
       end
     end
