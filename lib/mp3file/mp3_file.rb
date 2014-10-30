@@ -9,7 +9,7 @@ module Mp3file
     attr_reader(:mpeg_version, :layer, :bitrate, :samplerate, :mode)
     attr_reader(:num_frames, :total_samples, :length)
 
-    attr_accessor(:id3v1_tag, :id3v2_tag)
+    attr_accessor(:id3v1_tag, :id3v2_tag, :extra_id3v2_tags)
 
     def initialize(file_path)
       file_path = Pathname.new(file_path).expand_path if file_path.is_a?(String)
@@ -81,11 +81,11 @@ module Mp3file
       @id3v2_tag = nil
       begin
         @id3v2_tag = ID3v2::Tag.new(@file)
-      # rescue ID3v2::InvalidID3v2TagError => e
-      #   $stderr.puts "Error parsing ID3v2 tag: %s\n\t%s" %
-      #     [ e.message, e.backtrace.join("\n\t") ]
-      #   @id3v2_tag = nil
-      #   @file.seek(0, IO::SEEK_SET)
+      rescue ID3v2::InvalidID3v2TagError # => e
+        # $stderr.puts "Error parsing ID3v2 tag: %s\n\t%s" %
+        #   [ e.message, e.backtrace.join("\n\t") ]
+        @id3v2_tag = nil
+        @file.seek(0, IO::SEEK_SET)
       end
 
       # Skip past the ID3v2 header if it's present.
@@ -93,8 +93,32 @@ module Mp3file
         @file.seek(@id3v2_tag.size, IO::SEEK_SET)
       end
 
-      # Try to find the first MP3 header.
-      @first_header_offset, @first_header = get_next_header(@file)
+      # Some files have more than one ID3v2 tag. If we can't find an
+      # MP3 header in the next 4k, try reading another ID3v2 tag and
+      # repeat.
+      @extra_id3v2_tags = []
+      begin
+        # Try to find the first MP3 header.
+        @first_header_offset, @first_header = get_next_header(@file)
+      rescue InvalidMP3FileError
+        end_of_tags = @id3v2_tag.size + @extra_id3v2_tags.map(&:last).map(&:size).reduce(:+).to_i
+        @file.seek(end_of_tags, IO::SEEK_SET)
+
+        tag = nil
+        begin
+          tag = ID3v2::Tag.new(@file)
+        rescue ID3v2::InvalidID3v2TagError
+          tag = nil
+          @file.seek(end_of_tags, IO::SEEK_SET)
+        end
+
+        if tag
+          @extra_id3v2_tags << [ @file.tell, tag ]
+          retry
+        else
+          raise
+        end
+      end
 
       @mpeg_version = @first_header.version
       @layer = @first_header.layer

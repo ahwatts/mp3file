@@ -50,9 +50,23 @@ ARGV.each do |file|
       puts("        Size: #{tag.size} bytes")
       puts("        Version: #{tag.version.inspect}")
       puts("        Unused byes: #{tag.unused_bytes.inspect}")
-      if !mp3.id3v2_tag.frames.empty?
+      if !tag.frames.empty?
         puts("        Frames:")
-        mp3.id3v2_tag.frames.each do |frame|
+        tag.frames.each do |frame|
+          puts("            ID: #{frame.frame_id.inspect} size: #{frame.frame_size}")
+        end
+      end
+    end
+
+    mp3.extra_id3v2_tags.each do |offset, tag2|
+      puts("    Extra ID3v2 tag:")
+      puts("        Offset: #{offset} bytes")
+      puts("        Size: #{tag2.size} bytes")
+      puts("        Version: #{tag2.version.inspect}")
+      puts("        Unused byes: #{tag2.unused_bytes.inspect}")
+      if !tag2.frames.empty?
+        puts("        Frames:")
+        tag2.frames.each do |frame|
           puts("            ID: #{frame.frame_id.inspect} size: #{frame.frame_size}")
         end
       end
