@@ -113,7 +113,7 @@ module Mp3file
         end
 
         if tag
-          @extra_id3v2_tags << [ @file.tell, tag ]
+          @extra_id3v2_tags << [ end_of_tags, tag ]
           retry
         else
           raise
