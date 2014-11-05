@@ -41,9 +41,7 @@ module Mp3file
       begin
         tag_data = ID3v1TagFormat.read(io)
       rescue BinData::ValidityError => ve
-        unless ve.message =~ /value.*not as expected for.*tag_id/
-          raise InvalidID3v1TagError, ve.message
-        end
+        raise InvalidID3v1TagError, ve.message
       end
 
       if tag_data.nil?
