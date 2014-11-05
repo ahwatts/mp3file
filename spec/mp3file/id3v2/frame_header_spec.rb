@@ -26,13 +26,13 @@ describe Mp3file::ID3v2::FrameHeader do
   context "with ID3v2.3 tags" do
     let(:tag) { Mp3file::ID3v2::Tag.new(StringIO.new("ID3\x03\x00\x00\x00\x00\x00\x00")) }
 
-    describe("A header with invalid flag bits set") do
-      it("Should raise an error") do
-        io = StringIO.new("TIT2\x00\x00\x00\x09\x01\x00")
-        lambda { Mp3file::ID3v2::FrameHeader.new(io, tag) }.
-          should(raise_error(Mp3file::ID3v2::InvalidID3v2TagError))
-      end
-    end
+    # describe("A header with invalid flag bits set") do
+    #   it("Should raise an error") do
+    #     io = StringIO.new("TIT2\x00\x00\x00\x09\x01\x00")
+    #     lambda { Mp3file::ID3v2::FrameHeader.new(io, tag) }.
+    #       should(raise_error(Mp3file::ID3v2::InvalidID3v2TagError))
+    #   end
+    # end
     
     describe("A 9-byte TIT2 frame header.") do
       subject { Mp3file::ID3v2::FrameHeader.new(StringIO.new("TIT2\x00\x00\x00\x09\x00\x00"), tag) }
@@ -68,12 +68,12 @@ describe Mp3file::ID3v2::FrameHeader do
   context "with ID3v2.4 tags" do
     let(:tag) { Mp3file::ID3v2::Tag.new(StringIO.new("ID3\x04\x00\x00\x00\x00\x00\x00")) }
 
-    describe("A header with invalid flag bits set") do
-      it("Should raise an error") do
-        io = StringIO.new("TIT2\x00\x00\x00\x09\x01\x00")
-        lambda { Mp3file::ID3v2::FrameHeader.new(io, tag) }.
-          should(raise_error(Mp3file::ID3v2::InvalidID3v2TagError))
-      end
-    end
+    # describe("A header with invalid flag bits set") do
+    #   it("Should raise an error") do
+    #     io = StringIO.new("TIT2\x00\x00\x00\x09\x01\x00")
+    #     lambda { Mp3file::ID3v2::FrameHeader.new(io, tag) }.
+    #       should(raise_error(Mp3file::ID3v2::InvalidID3v2TagError))
+    #   end
+    # end
   end
 end

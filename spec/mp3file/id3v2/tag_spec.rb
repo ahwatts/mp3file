@@ -5,11 +5,7 @@ include CommonHelpers
 
 describe Mp3file::ID3v2::Tag do
   describe "An empty tag" do
-    subject do
-      t = Mp3file::ID3v2::Tag.new(StringIO.new("ID3\x03\x00\x00\x00\x00\x00\x00"))
-      t.load_frames
-      t
-    end
+    subject { Mp3file::ID3v2::Tag.new(StringIO.new("ID3\x03\x00\x00\x00\x00\x00\x00")) }
     its(:version) { should == Mp3file::ID3v2::ID3V2_3_0 }
     its(:unsynchronized) { should == false }
     its(:extended_header) { should == false }
