@@ -1,5 +1,5 @@
-module Mp3file
-  class InvalidXingHeaderError < Mp3fileError; end
+module Empythree
+  class InvalidXingHeaderError < MP3FileError; end
 
   class XingHeader
     attr_reader(:frames, :bytes, :toc, :quality)

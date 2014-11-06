@@ -1,6 +1,6 @@
 require 'forwardable'
 
-module Mp3file::ID3v2
+module Empythree::ID3v2
   class Tag
     extend Forwardable
 

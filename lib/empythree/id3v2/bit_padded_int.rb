@@ -1,4 +1,4 @@
-module Mp3file::ID3v2
+module Empythree::ID3v2
   module BitPaddedInt
     def self.unpad_number(num, bits = 7)
       field = 2**bits - 1

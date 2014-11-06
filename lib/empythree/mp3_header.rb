@@ -1,5 +1,5 @@
-module Mp3file
-  class InvalidMP3HeaderError < Mp3fileError; end
+module Empythree
+  class InvalidMP3HeaderError < MP3FileError; end
 
   class MP3Header
     attr_reader(:version, :layer, :has_crc, :bitrate, 

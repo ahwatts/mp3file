@@ -3,12 +3,12 @@ require 'pathname'
 require 'rubygems'
 require 'bindata'
 
-module Mp3file
-  class Mp3fileError < StandardError; end
+module Empythree
+  class MP3FileError < StandardError; end
 end
 
-require 'mp3file/mp3_file'
-require 'mp3file/mp3_header'
-require 'mp3file/xing_header'
-require 'mp3file/id3v1_tag'
-require 'mp3file/id3v2'
+require 'empythree/mp3_file'
+require 'empythree/mp3_header'
+require 'empythree/xing_header'
+require 'empythree/id3v1_tag'
+require 'empythree/id3v2'

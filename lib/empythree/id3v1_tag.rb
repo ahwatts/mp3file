@@ -1,5 +1,5 @@
-module Mp3file
-  class InvalidID3v1TagError < Mp3fileError; end
+module Empythree
+  class InvalidID3v1TagError < MP3FileError; end
 
   class ID3v1Tag
     attr_accessor(:title, :artist, :album, :year, :comment, :track, :genre_id, :genre)

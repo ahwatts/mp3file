@@ -1,11 +1,11 @@
-require File.dirname(__FILE__) + '/../../lib/mp3file'
+require File.dirname(__FILE__) + '/../../lib/empythree'
 require File.dirname(__FILE__) + '/../common_helpers'
 
 include CommonHelpers
 
-describe Mp3file::MP3File do
+describe Empythree::MP3File do
   describe "A 96 kbps 32 kHz Joint Stereo CBR file without any ID3 tags" do
-    subject { Mp3file::MP3File.new(fixture_file('bret_96.mp3')) }
+    subject { Empythree::MP3File.new(fixture_file('bret_96.mp3')) }
     its(:id3v2tag?) { should == false }
     its(:id3v1tag?) { should == false }
     its("file.path") { should == fixture_file('bret_96.mp3').to_s }
@@ -25,7 +25,7 @@ describe Mp3file::MP3File do
   end
 
   describe "a 44.1 kHz Stereo VBR file with an average bitrate of 13 kbps without any ID3 tags" do
-    subject { Mp3file::MP3File.new(fixture_file('bret_vbr_6.mp3')) }
+    subject { Empythree::MP3File.new(fixture_file('bret_vbr_6.mp3')) }
     its(:id3v2tag?) { should == false }
     its(:id3v1tag?) { should == false }
     its("file.path") { should == fixture_file('bret_vbr_6.mp3').to_s }
@@ -45,7 +45,7 @@ describe Mp3file::MP3File do
   end
 
   describe "A 96 kbps 32 kHz CBR file with only an ID3v1 tag" do
-    subject { Mp3file::MP3File.new(fixture_file('bret_id3v1.mp3')) }
+    subject { Empythree::MP3File.new(fixture_file('bret_id3v1.mp3')) }
     its(:id3v2tag?) { should == false }
     its(:id3v1tag?) { should == true }
     its(:audio_size) { should == 60912 }
@@ -62,14 +62,14 @@ describe Mp3file::MP3File do
     its('id3v1_tag.artist') { should == 'Cracker' }
     its(:title) { should == 'Hey Bret (You Know What Time I' }
     its(:album) { should == 'Sunrise in the Land of Milk an' }
-    its(:comment) { should == 'For testing the mp3file gem' }
+    its(:comment) { should == 'For testing the empythree gem' }
     its(:year) { should == '2009' }
     its(:track) { should == 9 }
     its(:genre) { should == 'Rock' }
   end
 
   describe "A 96 kbps 34 kHz Joint Stereo CBR file with an ID3v2 tag" do
-    subject { Mp3file::MP3File.new(fixture_file('bret_id3v2.mp3')) }
+    subject { Empythree::MP3File.new(fixture_file('bret_id3v2.mp3')) }
     its(:id3v2tag?) { should == true }
     its(:id3v1tag?) { should == false }
     its("file.path") { should == fixture_file('bret_id3v2.mp3').to_s }
@@ -90,8 +90,8 @@ describe Mp3file::MP3File do
 
   describe "A file consisting only of zeroes" do
     it "raises an error" do
-      lambda { Mp3file::MP3File.new(fixture_file('zeroes.mp3')) }.
-        should(raise_error(Mp3file::InvalidMP3FileError))
+      lambda { Empythree::MP3File.new(fixture_file('zeroes.mp3')) }.
+        should(raise_error(Empythree::InvalidMP3FileError))
     end
   end
 end

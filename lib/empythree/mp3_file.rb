@@ -1,5 +1,5 @@
-module Mp3file
-  class InvalidMP3FileError < Mp3fileError; end
+module Empythree
+  class InvalidMP3FileError < MP3FileError; end
 
   class MP3File
     attr_reader(:file, :file_size, :audio_size)
@@ -76,7 +76,7 @@ module Mp3file
       begin
         @file.seek(-128, IO::SEEK_END)
         @id3v1_tag = ID3v1Tag.parse(@file)
-      rescue Mp3file::InvalidID3v1TagError
+      rescue Empythree::InvalidID3v1TagError
         @id3v1_tag = nil
       ensure
         @file.seek(0, IO::SEEK_SET)

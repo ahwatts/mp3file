@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 
 $LOAD_PATH << File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
-require 'mp3file'
+require 'empythree'
 
 ARGV.each do |file|
   begin
-    mp3 = Mp3file::MP3File.new(file)
+    mp3 = Empythree::MP3File.new(file)
 
     puts("File: #{mp3.file.path}")
     puts("    Size: #{mp3.file_size} bytes Audio_size: #{mp3.audio_size} bytes")

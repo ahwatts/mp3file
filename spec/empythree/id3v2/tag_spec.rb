@@ -1,12 +1,12 @@
-require File.dirname(__FILE__) + '/../../../lib/mp3file'
+require File.dirname(__FILE__) + '/../../../lib/empythree'
 require File.dirname(__FILE__) + '/../../common_helpers'
 
 include CommonHelpers
 
-describe Mp3file::ID3v2::Tag do
+describe Empythree::ID3v2::Tag do
   describe "An empty tag" do
-    subject { Mp3file::ID3v2::Tag.new(StringIO.new("ID3\x03\x00\x00\x00\x00\x00\x00")) }
-    its(:version) { should == Mp3file::ID3v2::ID3V2_3_0 }
+    subject { Empythree::ID3v2::Tag.new(StringIO.new("ID3\x03\x00\x00\x00\x00\x00\x00")) }
+    its(:version) { should == Empythree::ID3v2::ID3V2_3_0 }
     its(:unsynchronized) { should == false }
     its(:extended_header) { should == false }
     its(:compression) { should == false }

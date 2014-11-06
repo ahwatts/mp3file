@@ -1,4 +1,4 @@
-module Mp3file::ID3v2
+module Empythree::ID3v2
   class FrameHeader
     class ID3v220FrameHeaderFormat < BinData::Record
       string(:frame_id, :length => 3)
