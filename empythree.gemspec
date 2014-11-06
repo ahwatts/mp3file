@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency("rspec")
   s.add_development_dependency("rspec-its")
   s.add_development_dependency("rake")
+  s.add_development_dependency("pry")
   s.add_dependency('bindata', "~> 1.5.0")
 
   s.files         = `git ls-files`.split("\n")
