@@ -1,5 +1,6 @@
-require 'pathname'
-require 'stringio'
+require "pathname"
+require "stringio"
+require "rspec/its"
 
 module CommonHelpers
   def fixture_file(filename)
