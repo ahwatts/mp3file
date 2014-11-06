@@ -6,52 +6,52 @@ include CommonHelpers
 describe Empythree::XingHeader do
   it 'raises an error if the first 4 bytes don\'t say "Xing"' do
     io = StringIO.new("Ping\x00\x00\x00\x00")
-    lambda { Empythree::XingHeader.new(io) }.should(raise_error(Empythree::InvalidXingHeaderError))
+    expect { Empythree::XingHeader.new(io) }.to raise_error(Empythree::InvalidXingHeaderError)
   end
 
   it 'raises an error if the next int is more than 15' do
     io = StringIO.new("Xing\x00\x00\x00\x10")
-    lambda { Empythree::XingHeader.new(io) }.should(raise_error(Empythree::InvalidXingHeaderError))
+    expect { Empythree::XingHeader.new(io) }.to raise_error(Empythree::InvalidXingHeaderError)
   end
 
   describe "with no parts" do
     subject { Empythree::XingHeader.new(StringIO.new("Xing\x00\x00\x00\x00")) }
-    its(:frames) { should == nil }
-    its(:bytes) { should == nil }
-    its(:toc) { should == nil }
-    its(:quality) { should == nil }
+    its(:frames)  { is_expected.to be_nil }
+    its(:bytes)   { is_expected.to be_nil }
+    its(:toc)     { is_expected.to be_nil }
+    its(:quality) { is_expected.to be_nil }
   end
 
   describe "with only a frame count" do
     subject { Empythree::XingHeader.new(StringIO.new("Xing\x00\x00\x00\x01\x00\x00\x14\xFA")) }
-    its(:frames) { should == 5370 }
-    its(:bytes) { should == nil }
-    its(:toc) { should == nil }
-    its(:quality) { should == nil }
+    its(:frames)  { is_expected.to eq(5370) }
+    its(:bytes)   { is_expected.to be_nil }
+    its(:toc)     { is_expected.to be_nil }
+    its(:quality) { is_expected.to be_nil }
   end
 
   describe "with only a byte count" do
     subject { Empythree::XingHeader.new(StringIO.new("Xing\x00\x00\x00\x02\x00\x00\x14\xFA")) }
-    its(:frames) { should == nil }
-    its(:bytes) { should == 5370 }
-    its(:toc) { should == nil }
-    its(:quality) { should == nil }
+    its(:frames)  { is_expected.to be_nil }
+    its(:bytes)   { is_expected.to eq(5370) }
+    its(:toc)     { is_expected.to be_nil }
+    its(:quality) { is_expected.to be_nil }
   end
 
   describe "with only a TOC" do
     subject { Empythree::XingHeader.new(StringIO.new("Xing\x00\x00\x00\x04" + ("\x00" * 100))) }
-    its(:frames) { should == nil }
-    its(:bytes) { should == nil }
-    its(:toc) { should == [ 0 ] * 100 }
-    its(:quality) { should == nil }
+    its(:frames)  { is_expected.to be_nil }
+    its(:bytes)   { is_expected.to be_nil }
+    its(:toc)     { is_expected.to eq([ 0 ] * 100) }
+    its(:quality) { is_expected.to be_nil }
   end
 
   describe "with only a quality" do
     subject { Empythree::XingHeader.new(StringIO.new("Xing\x00\x00\x00\x08\x00\x00\x00\x55")) }
-    its(:frames) { should == nil }
-    its(:bytes) { should == nil }
-    its(:toc) { should == nil }
-    its(:quality) { should == 85 }
+    its(:frames)  { is_expected.to be_nil }
+    its(:bytes)   { is_expected.to be_nil }
+    its(:toc)     { is_expected.to be_nil }
+    its(:quality) { is_expected.to eq(85) }
   end
 
   describe "with all four" do
@@ -67,9 +67,9 @@ describe Empythree::XingHeader do
       Empythree::XingHeader.new(StringIO.new(str))
     end
 
-    its(:frames) { should == 4977792 }
-    its(:bytes) { should == 1866672 }
-    its(:toc) { should == [ 0 ] * 100 }
-    its(:quality) { should == 85 }
+    its(:frames)  { is_expected.to eq(4977792) }
+    its(:bytes)   { is_expected.to eq(1866672) }
+    its(:toc)     { is_expected.to eq([ 0 ] * 100) }
+    its(:quality) { is_expected.to eq(85) }
   end
 end

@@ -5,8 +5,7 @@ include CommonHelpers
 
 describe Empythree::ID3v1Tag do
   it "rejects an ID3v1 tag if it doesn't begin with TAG" do
-    lambda { Empythree::ID3v1Tag.parse(StringIO.new("\x00" * 128)) }.
-      should(raise_error(Empythree::InvalidID3v1TagError))
+    expect { Empythree::ID3v1Tag.parse(StringIO.new("\x00" * 128)) }.to raise_error(Empythree::InvalidID3v1TagError)
   end
 
   describe "When created with a properly-formatted ID3v1 tag" do
@@ -20,13 +19,13 @@ describe Empythree::ID3v1Tag do
       Empythree::ID3v1Tag.parse(StringIO.new('TAG' + title + artist + album + year + comment + genre))
     end
 
-    its(:title) { should == 'Big Dipper' }
-    its(:artist) { should == 'Cracker' }
-    its(:album) { should == 'The Golden Age' }
-    its(:year) { should == '1996' }
-    its(:comment) { should == 'This is a comment' }
-    its(:track) { should == nil }
-    its(:genre) { should == 'Rock' }
+    its(:title)   { is_expected.to eq('Big Dipper') }
+    its(:artist)  { is_expected.to eq('Cracker') }
+    its(:album)   { is_expected.to eq('The Golden Age') }
+    its(:year)    { is_expected.to eq('1996') }
+    its(:comment) { is_expected.to eq('This is a comment') }
+    its(:track)   { is_expected.to be_nil }
+    its(:genre)   { is_expected.to eq('Rock') }
   end
 
   describe "When created with a properly-formatted ID3v1.1 tag" do
@@ -41,22 +40,22 @@ describe Empythree::ID3v1Tag do
       Empythree::ID3v1Tag.parse(StringIO.new('TAG' + title + artist + album + year + comment + tracknum + genre))
     end
 
-    its(:title) { should == 'Big Dipper' }
-    its(:artist) { should == 'Cracker' }
-    its(:album) { should == 'The Golden Age' }
-    its(:year) { should == '1996' }
-    its(:comment) { should == 'This is a comment' }
-    its(:track) { should == 3 }
-    its(:genre) { should == 'Rock' }
+    its(:title)   { is_expected.to eq('Big Dipper') }
+    its(:artist)  { is_expected.to eq('Cracker') }
+    its(:album)   { is_expected.to eq('The Golden Age') }
+    its(:year)    { is_expected.to eq('1996') }
+    its(:comment) { is_expected.to eq('This is a comment') }
+    its(:track)   { is_expected.to eq(3) }
+    its(:genre)   { is_expected.to eq('Rock') }
   end
 
   describe "When created with a blank ID3v1 tag" do
     subject { Empythree::ID3v1Tag.parse(StringIO.new("TAG" + ("\x00" * 125))) }
-    its(:title) { should == nil }
-    its(:artist) { should == nil }
-    its(:album) { should == nil }
-    its(:comment) { should == nil }
-    its(:track) { should == nil }
-    its(:genre) { should == 'Blues' }
+    its(:title)   { is_expected.to be_nil }
+    its(:artist)  { is_expected.to be_nil }
+    its(:album)   { is_expected.to be_nil }
+    its(:comment) { is_expected.to be_nil }
+    its(:track)   { is_expected.to be_nil }
+    its(:genre)   { is_expected.to eq('Blues') }
   end
 end
