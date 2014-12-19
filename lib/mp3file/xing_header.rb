@@ -5,7 +5,7 @@ module Mp3file
     attr_reader(:frames, :bytes, :toc, :quality)
 
     class XingHeaderFormat < BinData::Record
-      string(:vbr_id, :length => 4, :check_value => lambda { value == 'Xing' })
+      string(:vbr_id, :length => 4, :check_value => lambda { value == 'Xing' || value == 'Info' })
 
       uint8(:unused1, :check_value => lambda { value == 0 })
       uint8(:unused2, :check_value => lambda { value == 0 })
