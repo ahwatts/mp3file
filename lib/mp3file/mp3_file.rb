@@ -56,6 +56,22 @@ module Mp3file
       value_from_tags(:genre)
     end
 
+    def each_header
+      file = File.open(@file.path, "rb")
+      offset = @first_header_offset
+
+      file.seek(offset, IO::SEEK_SET)
+      while !file.eof?
+        header = MP3Header.new(file)
+        yield offset, header
+
+        offset = offset + header.frame_size
+        file.seek(offset, IO::SEEK_SET)
+      end
+
+      file.close
+    end
+
     private
 
     def value_from_tags(v1_field)
@@ -155,7 +171,7 @@ module Mp3file
         if @xing_header.frames && @xing_header.bytes
           @num_frames = @xing_header.frames
           @total_samples = @xing_header.frames * @first_header.samples
-          @length = total_samples / @samplerate
+          @length = total_samples.to_f / @samplerate.to_f
           @bitrate = ((@xing_header.bytes.to_f / @length.to_f) * 8 / 1000).to_i
         end
       else

@@ -72,6 +72,19 @@ ARGV.each do |file|
       end
     end
 
+    # frames = 0
+    # mp3.each_header do |offset, header2|
+    #   frames += 1
+    #   puts("    MPEG frame at #{offset} bytes:")
+    #   puts("        #{header2.version} #{header2.layer}")
+    #   puts("        Bitrate: #{header2.bitrate} bps Samplerate: #{header2.samplerate} Hz")
+    #   puts("        Mode: #{header2.mode} Mode Extension: #{header2.mode_extension} Emphasis: #{header2.emphasis}")
+    #   puts("        CRC: #{header2.has_crc} Padding: #{header2.has_padding}")
+    #   puts("        Copyright: #{header2.copyright} Original: #{header2.original}")
+    #   puts("        Samples: #{header2.samples} Frame size: #{header2.frame_size} Side bytes: #{header2.side_bytes}")
+    # end
+    # puts "    Total Frames: #{frames}"
+
     puts
   rescue
     $stderr.puts("Exception reading MP3 file %s: %s (%p)\n\t%s" %
