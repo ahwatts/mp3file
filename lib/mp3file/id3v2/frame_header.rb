@@ -84,7 +84,7 @@ module Mp3file::ID3v2
       end
 
       @frame_id = header.frame_id
-      @frame_size = BitPaddedInt.unpad_number(header.frame_size)
+      @frame_size = header.frame_size # BitPaddedInt.unpad_number(header.frame_size)
       @size = @header_size + @frame_size
     end
   end

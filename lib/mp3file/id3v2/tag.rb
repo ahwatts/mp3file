@@ -25,11 +25,14 @@ module Mp3file::ID3v2
       data.force_encoding("ASCII-8BIT")
       offset = 0
 
-      frame_offset, frame = get_next_frame_header(data, offset)
-      while frame
-        @frames << frame
-        offset = frame_offset + frame.size
+      loop do
         frame_offset, frame = get_next_frame_header(data, offset)
+        if frame
+          @frames << frame
+          offset = frame_offset + frame.size
+        else
+          break
+        end
       end
     end
 
