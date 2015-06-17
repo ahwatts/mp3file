@@ -150,8 +150,8 @@ module Mp3file
       if @id3v1_tag
         @audio_size -= 128
       end
-      if @id3v2_header
-        @audio_size -= (@id3v2_header.tag_size + 10)
+      if @id3v2_tag
+        @audio_size -= @id3v2_tag.size
       end
 
       # If it's VBR, there should be an Xing header after the
