@@ -11,9 +11,9 @@ module Mp3file
 
     attr_accessor(:id3v1_tag, :id3v2_tag, :extra_id3v2_tags)
 
-    def initialize(file_path)
+    def initialize(file_path, options = {})
       file_path = Pathname.new(file_path).expand_path if file_path.is_a?(String)
-      load_file(file_path)
+      load_file(file_path, options)
     end
 
     def vbr?
@@ -82,7 +82,9 @@ module Mp3file
       end
     end
 
-    def load_file(file_path)
+    def load_file(file_path, options = {})
+      scan_all_headers = %w{ t true 1 }.include?(options[:scan_all_headers].to_s)
+
       @file = file_path.open('rb')
       @file.seek(0, IO::SEEK_END)
       @file_size = @file.tell
@@ -164,22 +166,43 @@ module Mp3file
         @file.seek(@first_header_offset + 4, IO::SEEK_CUR)
       end
 
-      if @xing_header
-        @vbr = true
-        # Do the VBR length calculation.  What to do if we don't have
-        # both of these pieces of information?
-        if @xing_header.frames && @xing_header.bytes
-          @num_frames = @xing_header.frames
-          @total_samples = @xing_header.frames * @first_header.samples
-          @length = total_samples.to_f / @samplerate.to_f
-          @bitrate = ((@xing_header.bytes.to_f / @length.to_f) * 8 / 1000).to_i
+      if scan_all_headers
+        # Loop through all the frame headers, to check for VBR / CBR (as
+        # a Xing header can show up in either case).
+        frame_headers = [ @first_header ]
+        last_header_offset = @first_header_offset
+        loop do
+          file.seek(last_header_offset + frame_headers.last.frame_size)
+          last_header_offset, header = get_next_header(file)
+          if header.nil?
+            break
+          else
+            frame_headers << header
+          end
+        end
+
+        uniq_brs = frame_headers.map { |h| h.bitrate }.uniq
+        @vbr = uniq_brs.size > 1
+        if uniq_brs.size == 1
+          @bitrate = uniq_brs.first / 1000
         end
       else
+        # Use the Xing header to make the VBR / CBR call. Assume that
+        # Xing headers, when present in a CBR file, are called "Info".
+        @vbr = @xing_header.nil? || @xing_header.name == "Xing"
+      end
+
+      if @xing_header && @xing_header.frames && @xing_header.bytes
+        # Use the Xing header to calculate the duration (and overall bitrate).
+        @num_frames = @xing_header.frames
+        @total_samples = @xing_header.frames * @first_header.samples
+        @length = total_samples.to_f / @samplerate.to_f
+        @bitrate = ((@xing_header.bytes.to_f / @length.to_f) * 8 / 1000)
+      else
         # Do the CBR length calculation.
-        @vbr = false
         @num_frames = @audio_size / @first_header.frame_size
         @total_samples = @num_frames * @first_header.samples
-        @length = @total_samples / @samplerate
+        @length = @total_samples.to_f / @samplerate.to_f
       end
 
       @file.close
@@ -206,6 +229,8 @@ module Mp3file
             file.seek(header_offset, IO::SEEK_SET)
             retry
           end
+        rescue EOFError
+          break
         end
 
         # byte = file.readbyte
@@ -225,6 +250,10 @@ module Mp3file
         #   end
         # end
       end
+
+      # if initial_header_offset != header_offset
+      #   puts "Had to skip past #{header_offset - initial_header_offset} to find the next header."
+      # end
 
       [ header_offset, header ]
     end

@@ -3,21 +3,33 @@
 $LOAD_PATH << File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'mp3file'
 
+def humanize(num, places = 2)
+  if num.is_a?(Float)
+    parts = ("%.#{places}f" % [ num ]).split(".")
+  else
+    parts = num.to_s.to_str.split(".")
+  end
+
+  parts[0].gsub!(/(\d)(?=(\d\d\d)+(?!\d))/, "\\1,")
+  parts.join(".")
+end
+alias :h :humanize
+
 ARGV.each do |file|
   begin
-    mp3 = Mp3file::MP3File.new(file)
+    mp3 = Mp3file::MP3File.new(file, scan_all_headers: true)
 
     puts("File: #{mp3.file.path}")
-    puts("    Size: #{mp3.file_size} bytes Audio_size: #{mp3.audio_size} bytes")
-    puts("    #{mp3.mpeg_version} #{mp3.layer}")
-    puts("    Bitrate: #{mp3.bitrate} kbps Samplerate: #{mp3.samplerate} Hz Mode: #{mp3.mode}")
-    puts("    Duration: #{mp3.length} s")
-    puts("    Frames: #{mp3.num_frames} Samples: #{mp3.total_samples}")
+    puts("    Size: #{h(mp3.file_size)} bytes Audio_size: #{h(mp3.audio_size)} bytes")
+    puts("    #{mp3.mpeg_version}  #{mp3.layer}")
+    puts("    Bitrate: #{h(mp3.bitrate)} kbits/sec (vbr? #{mp3.vbr?.to_s}) Samplerate: #{mp3.samplerate} Hz Mode: #{mp3.mode}")
+    puts("    Duration: #{h(mp3.length)} s")
+    puts("    Frames: #{h(mp3.num_frames)} Samples: #{h(mp3.total_samples)}")
 
     header = mp3.first_header
-    puts("    First MPEG frame at #{mp3.first_header_offset} bytes:")
+    puts("    First MPEG frame at #{h(mp3.first_header_offset)} bytes:")
     puts("        #{header.version} #{header.layer}")
-    puts("        Bitrate: #{header.bitrate} bps Samplerate: #{header.samplerate} Hz")
+    puts("        Bitrate: #{header.bitrate} bps Samplerate: #{h(header.samplerate)} Hz")
     puts("        Mode: #{header.mode} Mode Extension: #{header.mode_extension} Emphasis: #{header.emphasis}")
     puts("        CRC: #{header.has_crc} Padding: #{header.has_padding}")
     puts("        Copyright: #{header.copyright} Original: #{header.original}")
@@ -26,7 +38,7 @@ ARGV.each do |file|
     if mp3.xing_header
       xing = mp3.xing_header
       puts("    Xing header:")
-      puts("        Frames: #{xing.frames} Bytes: #{xing.bytes} Quality: #{xing.quality} TOC: #{xing.toc ? 'present' : 'not present'}")
+      puts("        Frames: #{h(xing.frames)} Bytes: #{h(xing.bytes)} Quality: #{xing.quality} TOC: #{xing.toc ? 'present' : 'not present'}")
     end
 
     if mp3.vbri_header
@@ -47,13 +59,13 @@ ARGV.each do |file|
     if mp3.id3v2tag?
       tag = mp3.id3v2_tag
       puts("    ID3v2 tag:")
-      puts("        Size: #{tag.size} bytes")
+      puts("        Size: #{h(tag.size)} bytes")
       puts("        Version: #{tag.version.inspect}")
-      puts("        Unused byes: #{tag.unused_bytes.inspect}")
+      puts("        Unused byes: #{h(tag.unused_bytes)}")
       if !tag.frames.empty?
         puts("        Frames:")
         tag.frames.each do |frame|
-          puts("            ID: #{frame.frame_id.inspect} size: #{frame.frame_size}")
+          puts("            ID: #{frame.frame_id.inspect} size: #{h(frame.frame_size)}")
         end
       end
     end
@@ -63,11 +75,11 @@ ARGV.each do |file|
       puts("        Offset: #{offset} bytes")
       puts("        Size: #{tag2.size} bytes")
       puts("        Version: #{tag2.version.inspect}")
-      puts("        Unused byes: #{tag2.unused_bytes.inspect}")
+      puts("        Unused byes: #{h(tag2.unused_bytes)}")
       if !tag2.frames.empty?
         puts("        Frames:")
         tag2.frames.each do |frame|
-          puts("            ID: #{frame.frame_id.inspect} size: #{frame.frame_size}")
+          puts("            ID: #{frame.frame_id.inspect} size: #{h(frame.frame_size)}")
         end
       end
     end

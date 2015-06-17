@@ -2,7 +2,7 @@ module Mp3file
   class InvalidXingHeaderError < Mp3fileError; end
 
   class XingHeader
-    attr_reader(:frames, :bytes, :toc, :quality)
+    attr_reader(:name, :frames, :bytes, :toc, :quality)
 
     class XingHeaderFormat < BinData::Record
       string(:vbr_id, :length => 4, :check_value => lambda { value == 'Xing' || value == 'Info' })
@@ -30,6 +30,7 @@ module Mp3file
         raise InvalidXingHeaderError, ve.message
       end
 
+      @name = head.vbr_id
       @frames = head.frames if head.frames_present == 1
       @bytes = head.bytes if head.bytes_present == 1
       @toc = head.toc.dup if head.toc_present == 1
