@@ -21,7 +21,7 @@ ARGV.each do |file|
 
     puts("File: #{mp3.file.path}")
     puts("    Size: #{h(mp3.file_size)} bytes Audio_size: #{h(mp3.audio_size)} bytes")
-    puts("    #{mp3.mpeg_version}  #{mp3.layer}")
+    puts("    #{mp3.mpeg_version} #{mp3.layer}")
     puts("    Bitrate: #{h(mp3.bitrate)} kbits/sec (vbr? #{mp3.vbr?.to_s}) Samplerate: #{mp3.samplerate} Hz Mode: #{mp3.mode}")
     puts("    Duration: #{h(mp3.length)} s")
     puts("    Frames: #{h(mp3.num_frames)} Samples: #{h(mp3.total_samples)}")
