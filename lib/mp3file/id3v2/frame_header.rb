@@ -61,6 +61,7 @@ module Mp3file::ID3v2
         if @tag.version >= ID3V2_2_0 && @tag.version < ID3V2_3_0
           header = ID3v220FrameHeaderFormat.read(io)
           @header_size = 6
+          @frame_size = header.frame_size
         elsif @tag.version >= ID3V2_3_0 && @tag.version < ID3V2_4_0
           header = ID3v230FrameHeaderFormat.read(io)
           @header_size = 10
@@ -75,16 +76,17 @@ module Mp3file::ID3v2
           if header.has_group == 1
             @group = header.group_id
           end
+          @frame_size = header.frame_size
         elsif @tag.version >= ID3V2_4_0
           header = ID3v240FrameHeaderFormat.read(io)
           @header_size = 10
+          @frame_size = BitPaddedInt.unpad_number(header.frame_size)
         end
       rescue BinData::ValidityError => ve
         raise InvalidID3v2TagError, ve.message
       end
 
       @frame_id = header.frame_id
-      @frame_size = header.frame_size # BitPaddedInt.unpad_number(header.frame_size)
       @size = @header_size + @frame_size
     end
   end
