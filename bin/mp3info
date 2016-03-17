@@ -18,9 +18,10 @@ alias :h :humanize
 ARGV.each do |file|
   begin
     mp3 = Mp3file::MP3File.new(file, scan_all_headers: true)
+    audio_percent = mp3.audio_size.to_f / mp3.file_size.to_f * 100.0
 
     puts("File: #{mp3.file.path}")
-    puts("    Size: #{h(mp3.file_size)} bytes Audio_size: #{h(mp3.audio_size)} bytes")
+    puts("    Size: #{h(mp3.file_size)} bytes Audio_size: #{h(mp3.audio_size)} bytes (#{audio_percent.round(2)}%)")
     puts("    #{mp3.mpeg_version} #{mp3.layer}")
     puts("    Bitrate: #{h(mp3.bitrate)} kbits/sec (vbr? #{mp3.vbr?.to_s}) Samplerate: #{mp3.samplerate} Hz Mode: #{mp3.mode}")
     puts("    Duration: #{h(mp3.length)} s")
@@ -38,7 +39,25 @@ ARGV.each do |file|
     if mp3.xing_header
       xing = mp3.xing_header
       puts("    Xing header:")
-      puts("        Frames: #{h(xing.frames)} Bytes: #{h(xing.bytes)} Quality: #{xing.quality} TOC: #{xing.toc ? 'present' : 'not present'}")
+      print("        ")
+
+      if xing.frames
+        print("Frames: #{h(xing.frames)} ")
+      end
+
+      if xing.bytes
+        print("Bytes: #{h(xing.bytes)} ")
+      end
+
+      if xing.quality
+        print("Quality: #{xing.quality} ")
+      end
+
+      if xing.toc
+        print("TOC: #{xing.toc ? 'present' : 'not present'}")
+      end
+
+      puts
     end
 
     if mp3.vbri_header

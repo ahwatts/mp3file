@@ -31,10 +31,10 @@ module Mp3file
       end
 
       @name = head.vbr_id
-      @frames = head.frames if head.frames_present == 1
-      @bytes = head.bytes if head.bytes_present == 1
-      @toc = head.toc.dup if head.toc_present == 1
-      @quality = head.quality if head.quality_present == 1
+      @frames = head.frames if (head.frames_present == 1 && head.frames > 0)
+      @bytes = head.bytes if (head.bytes_present == 1 && head.bytes > 0)
+      @toc = head.toc.dup if (head.toc_present == 1 && !head.toc.empty?)
+      @quality = head.quality if (head.quality_present == 1 && head.quality > 0)
     end
   end
 end

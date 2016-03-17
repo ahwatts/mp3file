@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "mp3file"
 
-  s.add_development_dependency('rspec')
+  s.add_development_dependency('rspec', '~> 2.0', '< 2.99')
   s.add_development_dependency('rake')
   s.add_development_dependency('pry')
 
