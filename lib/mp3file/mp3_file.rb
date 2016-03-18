@@ -116,6 +116,10 @@ module Mp3file
         @file.seek(@id3v2_tag.size, IO::SEEK_SET)
       end
 
+      # Count how many bytes we had to skip while searching for a
+      # frame.
+      @skipped_bytes = 0
+
       # Some files have more than one ID3v2 tag. If we can't find an
       # MP3 header in the next 4k, try reading another ID3v2 tag and
       # repeat.
@@ -124,20 +128,28 @@ module Mp3file
         # Try to find the first MP3 header.
         @first_header_offset, @first_header = get_next_header(@file)
       rescue InvalidMP3FileError
-        end_of_tags = @id3v2_tag.size + @extra_id3v2_tags.map(&:last).map(&:size).reduce(:+).to_i
-        @file.seek(end_of_tags, IO::SEEK_SET)
-
-        tag = nil
-        begin
-          tag = ID3v2::Tag.new(@file)
-        rescue ID3v2::InvalidID3v2TagError
-          tag = nil
+        if @id3v2_tag
+          end_of_tags = @id3v2_tag.size + @extra_id3v2_tags.map(&:last).map(&:size).reduce(:+).to_i
           @file.seek(end_of_tags, IO::SEEK_SET)
-        end
 
-        if tag
-          @extra_id3v2_tags << [ end_of_tags, tag ]
-          retry
+          tag = nil
+          begin
+            tag = ID3v2::Tag.new(@file)
+          rescue ID3v2::InvalidID3v2TagError
+            tag = nil
+            @file.seek(end_of_tags, IO::SEEK_SET)
+          end
+
+          if tag
+            @extra_id3v2_tags << [ end_of_tags, tag ]
+
+            # Start the counter of skipped bytes over again, since we're
+            # starting the search for the first header over again.
+            @skipped_bytes = 0
+            retry
+          else
+            raise
+          end
         else
           raise
         end
@@ -251,8 +263,13 @@ module Mp3file
         # end
       end
 
+      @skipped_bytes += header_offset - initial_header_offset
+      if @skipped_bytes > 2048
+        raise InvalidMP3FileError, "Had to skip > 2048 bytes in between headers."
+      end
+
       # if initial_header_offset != header_offset
-      #   puts "Had to skip past #{header_offset - initial_header_offset} to find the next header."
+      #   puts "Had to skip past #{header_offset - initial_header_offset} to find the next header. header_offset = #{header_offset} header = #{header.inspect}"
       # end
 
       [ header_offset, header ]
