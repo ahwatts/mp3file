@@ -198,23 +198,27 @@ module Mp3file
         if uniq_brs.size == 1
           @bitrate = uniq_brs.first / 1000
         end
+        @num_frames = frame_headers.size
       else
         # Use the Xing header to make the VBR / CBR call. Assume that
         # Xing headers, when present in a CBR file, are called "Info".
         @vbr = @xing_header.nil? || @xing_header.name == "Xing"
       end
 
-      if @xing_header && @xing_header.frames && @xing_header.bytes
-        # Use the Xing header to calculate the duration (and overall bitrate).
-        @num_frames = @xing_header.frames
-        @total_samples = @xing_header.frames * @first_header.samples
-        @length = total_samples.to_f / @samplerate.to_f
-        @bitrate = ((@xing_header.bytes.to_f / @length.to_f) * 8 / 1000)
-      else
-        # Do the CBR length calculation.
-        @num_frames = @audio_size / @first_header.frame_size
-        @total_samples = @num_frames * @first_header.samples
-        @length = @total_samples.to_f / @samplerate.to_f
+      # Find the number of frames. Prefer the actual frame count we
+      # did (if we scanned all the frames) over the Xing
+      # header. Prefer the Xing header over file size math.
+      @num_frames = @num_frames || (@xing_header && @xing_header.frames) || (@audio_size / @first_header.frame_size)
+
+      # Figure out the total samples and the time duration.
+      @total_samples = @num_frames * @first_header.samples
+      @length = @total_samples.to_f / @samplerate.to_f
+
+      # If the file looks like it's a VBR file, do an averate bitrate
+      # calculation, either using the Xing header's idea of the file
+      # size or the one we found.
+      if @vbr
+        @bitrate = (@xing_header.bytes || @audio_size) / @length.to_f * 8 / 1000
       end
 
       @file.close
