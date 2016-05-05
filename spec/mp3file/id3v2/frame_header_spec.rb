@@ -10,7 +10,8 @@ describe Mp3file::ID3v2::FrameHeader do
     describe("A 15-byte long TT2 frame header.") do
       subject { Mp3file::ID3v2::FrameHeader.new(StringIO.new("TT2\x00\x00\x0f"), tag) }
       its(:frame_id) { should == 'TT2' }
-      its(:size) { should == 15 }
+      its(:size) { should == 21 }
+      its(:frame_size) { should == 15 }
       its(:preserve_on_altered_tag) { should == false }
       its(:preserve_on_altered_file) { should == false }
       its(:read_only) { should == false }
@@ -37,7 +38,8 @@ describe Mp3file::ID3v2::FrameHeader do
     describe("A 9-byte TIT2 frame header.") do
       subject { Mp3file::ID3v2::FrameHeader.new(StringIO.new("TIT2\x00\x00\x00\x09\x00\x00"), tag) }
       its(:frame_id) { should == 'TIT2' }
-      its(:size) { should == 9 }
+      its(:size) { should == 19 }
+      its(:frame_size) { should == 9 }
       its(:preserve_on_altered_tag) { should == false }
       its(:preserve_on_altered_file) { should == false }
       its(:read_only) { should == false }
@@ -52,7 +54,8 @@ describe Mp3file::ID3v2::FrameHeader do
     describe("A TIT2 header with all of its flags set") do
       subject { Mp3file::ID3v2::FrameHeader.new(StringIO.new("TIT2\x00\x00\x00\x09\x00\x00"), tag) }
       its(:frame_id) { should == 'TIT2' }
-      its(:size) { should == 9 }
+      its(:size) { should == 19 }
+      its(:frame_size) { should == 9 }
       its(:preserve_on_altered_tag) { should == false }
       its(:preserve_on_altered_file) { should == false }
       its(:read_only) { should == false }
