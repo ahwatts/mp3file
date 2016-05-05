@@ -1,7 +1,7 @@
 # Mp3file
 
 This is a pure-Ruby MP3 metadata extractor. We use it to identify the
-bitrate and duration of songs that people upload to [http://www.reverbnation.com].
+bitrate and duration of songs that people upload to http://www.reverbnation.com .
 
 It handles a bunch of things:
 * ID3v1 tags

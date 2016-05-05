@@ -17,7 +17,7 @@ alias :h :humanize
 
 ARGV.each do |file|
   begin
-    mp3 = Mp3file::MP3File.new(file, scan_all_headers: true)
+    mp3 = Mp3file::MP3File.new(file, scan_all_headers: false)
     audio_percent = mp3.audio_size.to_f / mp3.file_size.to_f * 100.0
 
     puts("File: #{mp3.file.path}")
@@ -39,7 +39,7 @@ ARGV.each do |file|
     if mp3.xing_header
       xing = mp3.xing_header
       puts("    Xing header:")
-      print("        ")
+      print("        Name: #{xing.name.inspect} ")
 
       if xing.frames
         print("Frames: #{h(xing.frames)} ")
