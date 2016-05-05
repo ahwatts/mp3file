@@ -12,3 +12,5 @@ It handles a bunch of things:
 Don't think of this as an example of good code. This is some of the
 most terrible, ugly, brutally hacky code I think I've ever written. I
 apologize to anyone who looks at it.
+
+[![Build Status](https://travis-ci.org/ahwatts/mp3file.svg?branch=master)](https://travis-ci.org/ahwatts/mp3file)
