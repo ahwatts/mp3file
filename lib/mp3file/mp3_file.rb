@@ -218,7 +218,7 @@ module Mp3file
       # calculation, either using the Xing header's idea of the file
       # size or the one we found.
       if @vbr
-        @bitrate = (@xing_header.bytes || @audio_size) / @length.to_f * 8 / 1000
+        @bitrate = ((@xing_header && @xing_header.bytes) || @audio_size) / @length.to_f * 8 / 1000
       end
 
       @file.close
