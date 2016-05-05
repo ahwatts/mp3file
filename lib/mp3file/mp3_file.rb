@@ -206,21 +206,32 @@ module Mp3file
         @vbr = !@xing_header.nil? && @xing_header.name == "Xing"
       end
 
-      # puts "@num_frames = #{@num_frames.inspect}"
-      # puts "@xing_header = #{@xing_header.inspect}"
+      # puts "@num_frames (1) = #{@num_frames.inspect}"
+      # puts "@bitrate (1) = #{@bitrate.inspect}"
+      # puts "@vbr = #{@vbr.inspect}"
+      # puts "@xing_header.frames = #{@xing_header && @xing_header.frames.inspect}"
+      # puts "@xing_header.bytes = #{@xing_header && @xing_header.bytes.inspect}"
       # puts "@audio_size = #{@audio_size.inspect}"
       # puts "@first_header size = #{@first_header.frame_size.inspect}"
 
-      # Find the number of frames. Prefer the actual frame count we
-      # did (if we scanned all the frames) over the Xing
-      # header. Prefer the Xing header over file size math.
-      @num_frames = @num_frames ||
-        (@xing_header && (@xing_header.frames + 1)) ||
+      # Find the number of frames, in this order:
+      # 1. The frame count from the Xing (or Info) header.
+      # 2. The number of frames we actually counted by scanning the
+      #    whole file, which we might not have done.
+      # 3. Assume it's CBR and divide the file size by the frame size.
+      @num_frames = 
+        (@xing_header && @xing_header.frames) ||
+        @num_frames ||
         (@audio_size / @first_header.frame_size)
+
+      # puts "@num_frames (2) = #{@num_frames.inspect}"
 
       # Figure out the total samples and the time duration.
       @total_samples = @num_frames * @first_header.samples
       @length = @total_samples.to_f / @samplerate.to_f
+
+      # puts "@total_samples = #{@total_samples.inspect}"
+      # puts "@length = #{@length.inspect}"
 
       # If the file looks like it's a VBR file, do an averate bitrate
       # calculation, either using the Xing header's idea of the file
@@ -229,8 +240,7 @@ module Mp3file
         @bitrate = ((@xing_header && @xing_header.bytes) || @audio_size) / @length.to_f * 8 / 1000
       end
 
-      # puts "@vbr = #{@vbr.inspect}"
-      # puts "@bitrate = #{@bitrate.inspect}"
+      # puts "@bitrate (2) = #{@bitrate.inspect}"
 
       @file.close
     end
