@@ -5,12 +5,12 @@ module Mp3file
     attr_accessor(:title, :artist, :album, :year, :comment, :track, :genre_id, :genre)
 
     class ID3v1TagFormat < BinData::Record
-      string(:tag_id, :length => 3, :check_value => lambda { value == 'TAG' })
-      string(:title, :length => 30)
-      string(:artist, :length => 30)
-      string(:album, :length => 30)
-      string(:year, :length => 4)
-      string(:comment, :length => 30)
+      string(:tag_id, read_length: 3, asserted_value: "TAG")
+      string(:title,   length: 30, trim_padding: true)
+      string(:artist,  length: 30, trim_padding: true)
+      string(:album,   length: 30, trim_padding: true)
+      string(:year,    length:  4, trim_padding: true)
+      string(:comment, length: 30)
       uint8(:genre_id)
     end
 
@@ -52,12 +52,12 @@ module Mp3file
     end
 
     def load_format(tag_data)
-      @title = tag_data.title.split("\x00").first
-      @artist = tag_data.artist.split("\x00").first
-      @album = tag_data.album.split("\x00").first
+      @title = tag_data.title
+      @artist = tag_data.artist
+      @album = tag_data.album
       @year = tag_data.year
       split_comment = tag_data.comment.split("\x00").reject { |s| s == '' }
-      @comment = split_comment.first
+      @comment = split_comment.first || ""
       if split_comment.size > 1
         @track = split_comment.last.bytes.first
       end

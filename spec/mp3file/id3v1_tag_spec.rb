@@ -52,10 +52,10 @@ describe Mp3file::ID3v1Tag do
 
   describe "When created with a blank ID3v1 tag" do
     subject { Mp3file::ID3v1Tag.parse(StringIO.new("TAG" + ("\x00" * 125))) }
-    its(:title) { should == nil }
-    its(:artist) { should == nil }
-    its(:album) { should == nil }
-    its(:comment) { should == nil }
+    its(:title) { should == "" }
+    its(:artist) { should == "" }
+    its(:album) { should == "" }
+    its(:comment) { should == "" }
     its(:track) { should == nil }
     its(:genre) { should == 'Blues' }
   end
