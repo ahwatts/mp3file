@@ -10,15 +10,15 @@ module Mp3file::ID3v2
       :tag_size)
 
     class ID3v2HeaderFormat < BinData::Record
-      string(:tag_id, :length => 3, :check_value => lambda { value == 'ID3' })
-      uint8(:vmaj, :check_value => lambda { value >= 2 && value <= 4 })
+      string(:tag_id, read_length: 3, asserted_value: "ID3")
+      uint8(:vmaj, assert: -> { (2..4) === value })
       uint8(:vmin)
 
       bit1(:unsynchronized)
       bit1(:extended_header)
       bit1(:experimental)
       bit1(:footer)
-      bit4(:unused, :check_value => lambda { value == 0 })
+      bit4(:unused)
 
       uint32be(:size_padded)
     end
