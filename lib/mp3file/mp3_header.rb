@@ -81,7 +81,18 @@ module Mp3file
       @version = MPEG_VERSIONS[head.version]
       @layer = LAYERS[head.layer]
       @has_crc = head.crc == 0
-      @bitrate = BITRATES[head.version][head.layer][head.bitrate - 1] * 1000
+
+      if @version.nil? || @layer.nil?
+        raise InvalidMP3HeaderError, "Bad MPEG version or layer."
+      end
+
+      kbitrate = BITRATES[head.version][head.layer][head.bitrate - 1]
+
+      if kbitrate.nil?
+        raise InvalidMP3HeaderError, "Bad bitrate."
+      end
+
+      @bitrate = kbitrate * 1000
       @samplerate = SAMPLERATES[head.version][head.samplerate]
       @has_padding = head.padding == 1
       @mode = MODES[head.mode]
