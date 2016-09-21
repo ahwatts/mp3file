@@ -137,10 +137,11 @@ module Mp3file
               nil
             end
 
+          # Pretend we didn't read the second header.
+          @file.seek(@first_header_offset + 4)
+
           if second_header && @first_header.same_header?(second_header)
             break
-          else
-            @file.seek(@first_header_offset + 4)
           end
         end
       rescue InvalidMP3FileError
