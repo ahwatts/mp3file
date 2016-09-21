@@ -1,38 +1,38 @@
 module Mp3file::ID3v2
   class FrameHeader
     class ID3v220FrameHeaderFormat < BinData::Record
-      string(:frame_id, :length => 3)
+      string(:frame_id, length: 3)
       uint24be(:frame_size)
     end
 
     class ID3v230FrameHeaderFormat < BinData::Record
-      string(:frame_id, :length => 4)
+      string(:frame_id, length: 4)
       uint32be(:frame_size)
       bit1(:tag_alter_preserve)
       bit1(:file_alter_preserve)
       bit1(:read_only)
-      bit5(:unused1) # , :check_value => lambda { value == 0 })
+      bit5(:unused1)
       bit1(:compression)
       bit1(:encryption)
       bit1(:has_group)
-      bit5(:unused2) # , :check_value => lambda { value == 0 })
-      uint8(:encryption_type, :onlyif => lambda { encryption == 1 })
-      uint8(:group_id, :onlyif => lambda { has_group == 1 })
+      bit5(:unused2)
+      uint8(:encryption_type, onlyif: -> { encryption == 1 })
+      uint8(:group_id, onlyif: -> { has_group == 1 })
     end
 
     class ID3v240FrameHeaderFormat < BinData::Record
-      string(:frame_id, :length => 4)
+      string(:frame_id, length: 4)
       uint32be(:frame_size)
-      bit1(:unused1) # , :check_value => lambda { value == 0 })
+      bit1(:unused1)
       bit1(:tag_alter_preserve)
       bit1(:file_alter_preserve)
       bit1(:read_only)
 
-      bit4(:unused2) # , :check_value => lambda { value == 0 })
+      bit4(:unused2)
 
-      bit1(:unused3) # , :check_value => lambda { value == 0 })
+      bit1(:unused3)
       bit1(:group)
-      bit2(:unused4) # , :check_value => lambda { value == 0 })
+      bit2(:unused4)
 
       bit1(:compression)
       bit1(:encryption)

@@ -125,8 +125,24 @@ module Mp3file
       # repeat.
       @extra_id3v2_tags = []
       begin
-        # Try to find the first MP3 header.
-        @first_header_offset, @first_header = get_next_header(@file)
+        # Try to find the first two MP3 headers.
+        loop do
+          @first_header_offset, @first_header = get_next_header(@file)
+          @file.seek(@first_header_offset + @first_header.frame_size, IO::SEEK_SET)
+          second_header_offset = @file.tell - 4
+          second_header =
+            begin
+              MP3Header.new(@file)
+            rescue InvalidMP3HeaderError
+              nil
+            end
+
+          if second_header && @first_header.same_header?(second_header)
+            break
+          else
+            @file.seek(@first_header_offset + 4)
+          end
+        end
       rescue InvalidMP3FileError
         if @id3v2_tag
           end_of_tags = @id3v2_tag.size + @extra_id3v2_tags.map(&:last).map(&:size).reduce(:+).to_i
@@ -257,7 +273,7 @@ module Mp3file
       while header.nil?
         begin
           header = MP3Header.new(file)
-          header_offset = file.tell - 4
+          header_offset = file.tell - 4          
         rescue InvalidMP3HeaderError
           header_offset += 1
           if header_offset - initial_header_offset > 4096

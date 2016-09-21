@@ -5,18 +5,18 @@ module Mp3file
     attr_reader(:version, :layer, :has_crc, :bitrate, 
       :samplerate, :has_padding, :mode, :mode_extension, 
       :copyright, :original, :emphasis, :samples, :frame_size,
-      :side_bytes)
+      :side_bytes, :raw)
 
     class MP3HeaderFormat < BinData::Record
-      uint8(:sync1, :value => 255, :check_value => lambda { value == 255 })
+      uint8(:sync1, asserted_value: 255)
 
-      bit3(:sync2, :value => 7, :check_value => lambda { value == 7 })
-      bit2(:version, :check_value => lambda { value != 1 })
-      bit2(:layer, :check_value => lambda { value != 0 })
+      bit3(:sync2, asserted_value: 7)
+      bit2(:version, assert: -> { value != 1 })
+      bit2(:layer, assert: -> { value != 0 })
       bit1(:crc)
 
-      bit4(:bitrate, :check_value => lambda { value != 15 && value != 0 })
-      bit2(:samplerate, :check_value => lambda { value != 3 })
+      bit4(:bitrate, assert: -> { value != 15 && value != 0 })
+      bit2(:samplerate, assert: -> { value != 3 })
       bit1(:padding)
       bit1(:private)
 
@@ -24,7 +24,7 @@ module Mp3file
       bit2(:mode_extension)
       bit1(:copyright)
       bit1(:original)
-      bit2(:emphasis, :check_value => lambda { value != 2 })
+      bit2(:emphasis, assert: -> { value != 2 })
     end
 
     MPEG_VERSIONS = [ 'MPEG 2.5', nil, 'MPEG 2', 'MPEG 1' ]
@@ -78,6 +78,7 @@ module Mp3file
         raise InvalidMP3HeaderError, ve.message
       end
 
+      @raw = head
       @version = MPEG_VERSIONS[head.version]
       @layer = LAYERS[head.layer]
       @has_crc = head.crc == 0
@@ -115,6 +116,20 @@ module Mp3file
       pad_slots = has_padding ? 1 : 0
       @frame_size = (((samples.to_f * bitrate.to_f) / (8 * slot_size.to_f * samplerate.to_f)) + pad_slots).to_i * slot_size
       @side_bytes = SIDE_BYTES[head.version][head.mode]
+    end
+
+    def to_i
+      @raw.to_binary_s
+        .reverse
+        .each_byte
+        .each_with_index
+        .inject(0) { |m, (b, i)| m += b << (i*8) }
+    end
+
+    def same_header?(other)
+      # Borrowed from ffmpeg.
+      same_header_mask = 0xffe00000 | (3 << 17) | (3 << 10) | (3 << 19)
+      (to_i & same_header_mask) == (other.to_i & same_header_mask)
     end
   end
 end

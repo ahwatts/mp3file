@@ -11,7 +11,7 @@ module Mp3file::ID3v2
 
     class ID3v2HeaderFormat < BinData::Record
       string(:tag_id, read_length: 3, asserted_value: "ID3")
-      uint8(:vmaj, assert: -> { (2..4) === value })
+      uint8(:vmaj, assert: -> { (2..4).include?(value) })
       uint8(:vmin)
 
       bit1(:unsynchronized)
