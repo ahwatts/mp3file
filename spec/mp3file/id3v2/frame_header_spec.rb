@@ -9,18 +9,66 @@ describe Mp3file::ID3v2::FrameHeader do
 
     describe("A 15-byte long TT2 frame header.") do
       subject { Mp3file::ID3v2::FrameHeader.new(StringIO.new("TT2\x00\x00\x0f"), tag) }
-      its(:frame_id) { should == 'TT2' }
-      its(:size) { should == 21 }
-      its(:frame_size) { should == 15 }
-      its(:preserve_on_altered_tag) { should == false }
-      its(:preserve_on_altered_file) { should == false }
-      its(:read_only) { should == false }
-      its(:compressed) { should == false }
-      its(:encrypted) { should == false }
-      its(:encryption_type) { should be_nil }
-      its(:group) { should be_nil }
-      its(:unsynchronized) { should == false }
-      its(:data_length) { should == 0 }
+
+      describe '#frame_id' do
+        subject { super().frame_id }
+        it { is_expected.to eq('TT2') }
+      end
+
+      describe '#size' do
+        subject { super().size }
+        it { is_expected.to eq(21) }
+      end
+
+      describe '#frame_size' do
+        subject { super().frame_size }
+        it { is_expected.to eq(15) }
+      end
+
+      describe '#preserve_on_altered_tag' do
+        subject { super().preserve_on_altered_tag }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#preserve_on_altered_file' do
+        subject { super().preserve_on_altered_file }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#read_only' do
+        subject { super().read_only }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#compressed' do
+        subject { super().compressed }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#encrypted' do
+        subject { super().encrypted }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#encryption_type' do
+        subject { super().encryption_type }
+        it { is_expected.to be_nil }
+      end
+
+      describe '#group' do
+        subject { super().group }
+        it { is_expected.to be_nil }
+      end
+
+      describe '#unsynchronized' do
+        subject { super().unsynchronized }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#data_length' do
+        subject { super().data_length }
+        it { is_expected.to eq(0) }
+      end
     end
   end
   
@@ -37,34 +85,130 @@ describe Mp3file::ID3v2::FrameHeader do
     
     describe("A 9-byte TIT2 frame header.") do
       subject { Mp3file::ID3v2::FrameHeader.new(StringIO.new("TIT2\x00\x00\x00\x09\x00\x00"), tag) }
-      its(:frame_id) { should == 'TIT2' }
-      its(:size) { should == 19 }
-      its(:frame_size) { should == 9 }
-      its(:preserve_on_altered_tag) { should == false }
-      its(:preserve_on_altered_file) { should == false }
-      its(:read_only) { should == false }
-      its(:compressed) { should == false }
-      its(:encrypted) { should == false }
-      its(:encryption_type) { should be_nil }
-      its(:group) { should be_nil }
-      its(:unsynchronized) { should == false }
-      its(:data_length) { should == 0 }
+
+      describe '#frame_id' do
+        subject { super().frame_id }
+        it { is_expected.to eq('TIT2') }
+      end
+
+      describe '#size' do
+        subject { super().size }
+        it { is_expected.to eq(19) }
+      end
+
+      describe '#frame_size' do
+        subject { super().frame_size }
+        it { is_expected.to eq(9) }
+      end
+
+      describe '#preserve_on_altered_tag' do
+        subject { super().preserve_on_altered_tag }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#preserve_on_altered_file' do
+        subject { super().preserve_on_altered_file }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#read_only' do
+        subject { super().read_only }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#compressed' do
+        subject { super().compressed }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#encrypted' do
+        subject { super().encrypted }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#encryption_type' do
+        subject { super().encryption_type }
+        it { is_expected.to be_nil }
+      end
+
+      describe '#group' do
+        subject { super().group }
+        it { is_expected.to be_nil }
+      end
+
+      describe '#unsynchronized' do
+        subject { super().unsynchronized }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#data_length' do
+        subject { super().data_length }
+        it { is_expected.to eq(0) }
+      end
     end
 
     describe("A TIT2 header with all of its flags set") do
       subject { Mp3file::ID3v2::FrameHeader.new(StringIO.new("TIT2\x00\x00\x00\x09\x00\x00"), tag) }
-      its(:frame_id) { should == 'TIT2' }
-      its(:size) { should == 19 }
-      its(:frame_size) { should == 9 }
-      its(:preserve_on_altered_tag) { should == false }
-      its(:preserve_on_altered_file) { should == false }
-      its(:read_only) { should == false }
-      its(:compressed) { should == false }
-      its(:encrypted) { should == false }
-      its(:encryption_type) { should be_nil }
-      its(:group) { should be_nil }
-      its(:unsynchronized) { should == false }
-      its(:data_length) { should == 0 }
+
+      describe '#frame_id' do
+        subject { super().frame_id }
+        it { is_expected.to eq('TIT2') }
+      end
+
+      describe '#size' do
+        subject { super().size }
+        it { is_expected.to eq(19) }
+      end
+
+      describe '#frame_size' do
+        subject { super().frame_size }
+        it { is_expected.to eq(9) }
+      end
+
+      describe '#preserve_on_altered_tag' do
+        subject { super().preserve_on_altered_tag }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#preserve_on_altered_file' do
+        subject { super().preserve_on_altered_file }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#read_only' do
+        subject { super().read_only }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#compressed' do
+        subject { super().compressed }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#encrypted' do
+        subject { super().encrypted }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#encryption_type' do
+        subject { super().encryption_type }
+        it { is_expected.to be_nil }
+      end
+
+      describe '#group' do
+        subject { super().group }
+        it { is_expected.to be_nil }
+      end
+
+      describe '#unsynchronized' do
+        subject { super().unsynchronized }
+        it { is_expected.to eq(false) }
+      end
+
+      describe '#data_length' do
+        subject { super().data_length }
+        it { is_expected.to eq(0) }
+      end
     end
   end
 

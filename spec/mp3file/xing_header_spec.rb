@@ -6,52 +6,132 @@ include CommonHelpers
 describe Mp3file::XingHeader do
   it 'raises an error if the first 4 bytes don\'t say "Xing"' do
     io = StringIO.new("Ping\x00\x00\x00\x00")
-    lambda { Mp3file::XingHeader.new(io) }.should(raise_error(Mp3file::InvalidXingHeaderError))
+    expect { Mp3file::XingHeader.new(io) }.to(raise_error(Mp3file::InvalidXingHeaderError))
   end
 
   it 'raises an error if the next int is more than 15' do
     io = StringIO.new("Xing\x00\x00\x00\x10")
-    lambda { Mp3file::XingHeader.new(io) }.should(raise_error(Mp3file::InvalidXingHeaderError))
+    expect { Mp3file::XingHeader.new(io) }.to(raise_error(Mp3file::InvalidXingHeaderError))
   end
 
   describe "with no parts" do
     subject { Mp3file::XingHeader.new(StringIO.new("Xing\x00\x00\x00\x00")) }
-    its(:frames) { should == nil }
-    its(:bytes) { should == nil }
-    its(:toc) { should == nil }
-    its(:quality) { should == nil }
+
+    describe '#frames' do
+      subject { super().frames }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#bytes' do
+      subject { super().bytes }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#toc' do
+      subject { super().toc }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#quality' do
+      subject { super().quality }
+      it { is_expected.to eq(nil) }
+    end
   end
 
   describe "with only a frame count" do
     subject { Mp3file::XingHeader.new(StringIO.new("Xing\x00\x00\x00\x01\x00\x00\x14\xFA")) }
-    its(:frames) { should == 5370 }
-    its(:bytes) { should == nil }
-    its(:toc) { should == nil }
-    its(:quality) { should == nil }
+
+    describe '#frames' do
+      subject { super().frames }
+      it { is_expected.to eq(5370) }
+    end
+
+    describe '#bytes' do
+      subject { super().bytes }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#toc' do
+      subject { super().toc }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#quality' do
+      subject { super().quality }
+      it { is_expected.to eq(nil) }
+    end
   end
 
   describe "with only a byte count" do
     subject { Mp3file::XingHeader.new(StringIO.new("Xing\x00\x00\x00\x02\x00\x00\x14\xFA")) }
-    its(:frames) { should == nil }
-    its(:bytes) { should == 5370 }
-    its(:toc) { should == nil }
-    its(:quality) { should == nil }
+
+    describe '#frames' do
+      subject { super().frames }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#bytes' do
+      subject { super().bytes }
+      it { is_expected.to eq(5370) }
+    end
+
+    describe '#toc' do
+      subject { super().toc }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#quality' do
+      subject { super().quality }
+      it { is_expected.to eq(nil) }
+    end
   end
 
   describe "with only a TOC" do
     subject { Mp3file::XingHeader.new(StringIO.new("Xing\x00\x00\x00\x04" + ("\x00" * 100))) }
-    its(:frames) { should == nil }
-    its(:bytes) { should == nil }
-    its(:toc) { should == [ 0 ] * 100 }
-    its(:quality) { should == nil }
+
+    describe '#frames' do
+      subject { super().frames }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#bytes' do
+      subject { super().bytes }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#toc' do
+      subject { super().toc }
+      it { is_expected.to eq([ 0 ] * 100) }
+    end
+
+    describe '#quality' do
+      subject { super().quality }
+      it { is_expected.to eq(nil) }
+    end
   end
 
   describe "with only a quality" do
     subject { Mp3file::XingHeader.new(StringIO.new("Xing\x00\x00\x00\x08\x00\x00\x00\x55")) }
-    its(:frames) { should == nil }
-    its(:bytes) { should == nil }
-    its(:toc) { should == nil }
-    its(:quality) { should == 85 }
+
+    describe '#frames' do
+      subject { super().frames }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#bytes' do
+      subject { super().bytes }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#toc' do
+      subject { super().toc }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#quality' do
+      subject { super().quality }
+      it { is_expected.to eq(85) }
+    end
   end
 
   describe "with all four" do
@@ -67,9 +147,24 @@ describe Mp3file::XingHeader do
       Mp3file::XingHeader.new(StringIO.new(str))
     end
 
-    its(:frames) { should == 4977792 }
-    its(:bytes) { should == 1866672 }
-    its(:toc) { should == [ 0 ] * 100 }
-    its(:quality) { should == 85 }
+    describe '#frames' do
+      subject { super().frames }
+      it { is_expected.to eq(4977792) }
+    end
+
+    describe '#bytes' do
+      subject { super().bytes }
+      it { is_expected.to eq(1866672) }
+    end
+
+    describe '#toc' do
+      subject { super().toc }
+      it { is_expected.to eq([ 0 ] * 100) }
+    end
+
+    describe '#quality' do
+      subject { super().quality }
+      it { is_expected.to eq(85) }
+    end
   end
 end

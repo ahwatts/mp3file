@@ -5,8 +5,8 @@ include CommonHelpers
 
 describe Mp3file::ID3v1Tag do
   it "rejects an ID3v1 tag if it doesn't begin with TAG" do
-    lambda { Mp3file::ID3v1Tag.parse(StringIO.new("\x00" * 128)) }.
-      should(raise_error(Mp3file::InvalidID3v1TagError))
+    expect { Mp3file::ID3v1Tag.parse(StringIO.new("\x00" * 128)) }.
+      to(raise_error(Mp3file::InvalidID3v1TagError))
   end
 
   describe "When created with a properly-formatted ID3v1 tag" do
@@ -20,13 +20,40 @@ describe Mp3file::ID3v1Tag do
       Mp3file::ID3v1Tag.parse(StringIO.new('TAG' + title + artist + album + year + comment + genre))
     end
 
-    its(:title) { should == 'Big Dipper' }
-    its(:artist) { should == 'Cracker' }
-    its(:album) { should == 'The Golden Age' }
-    its(:year) { should == '1996' }
-    its(:comment) { should == 'This is a comment' }
-    its(:track) { should == nil }
-    its(:genre) { should == 'Rock' }
+    describe '#title' do
+      subject { super().title }
+      it { is_expected.to eq('Big Dipper') }
+    end
+
+    describe '#artist' do
+      subject { super().artist }
+      it { is_expected.to eq('Cracker') }
+    end
+
+    describe '#album' do
+      subject { super().album }
+      it { is_expected.to eq('The Golden Age') }
+    end
+
+    describe '#year' do
+      subject { super().year }
+      it { is_expected.to eq('1996') }
+    end
+
+    describe '#comment' do
+      subject { super().comment }
+      it { is_expected.to eq('This is a comment') }
+    end
+
+    describe '#track' do
+      subject { super().track }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#genre' do
+      subject { super().genre }
+      it { is_expected.to eq('Rock') }
+    end
   end
 
   describe "When created with a properly-formatted ID3v1.1 tag" do
@@ -41,22 +68,73 @@ describe Mp3file::ID3v1Tag do
       Mp3file::ID3v1Tag.parse(StringIO.new('TAG' + title + artist + album + year + comment + tracknum + genre))
     end
 
-    its(:title) { should == 'Big Dipper' }
-    its(:artist) { should == 'Cracker' }
-    its(:album) { should == 'The Golden Age' }
-    its(:year) { should == '1996' }
-    its(:comment) { should == 'This is a comment' }
-    its(:track) { should == 3 }
-    its(:genre) { should == 'Rock' }
+    describe '#title' do
+      subject { super().title }
+      it { is_expected.to eq('Big Dipper') }
+    end
+
+    describe '#artist' do
+      subject { super().artist }
+      it { is_expected.to eq('Cracker') }
+    end
+
+    describe '#album' do
+      subject { super().album }
+      it { is_expected.to eq('The Golden Age') }
+    end
+
+    describe '#year' do
+      subject { super().year }
+      it { is_expected.to eq('1996') }
+    end
+
+    describe '#comment' do
+      subject { super().comment }
+      it { is_expected.to eq('This is a comment') }
+    end
+
+    describe '#track' do
+      subject { super().track }
+      it { is_expected.to eq(3) }
+    end
+
+    describe '#genre' do
+      subject { super().genre }
+      it { is_expected.to eq('Rock') }
+    end
   end
 
   describe "When created with a blank ID3v1 tag" do
     subject { Mp3file::ID3v1Tag.parse(StringIO.new("TAG" + ("\x00" * 125))) }
-    its(:title) { should == "" }
-    its(:artist) { should == "" }
-    its(:album) { should == "" }
-    its(:comment) { should == "" }
-    its(:track) { should == nil }
-    its(:genre) { should == 'Blues' }
+
+    describe '#title' do
+      subject { super().title }
+      it { is_expected.to eq("") }
+    end
+
+    describe '#artist' do
+      subject { super().artist }
+      it { is_expected.to eq("") }
+    end
+
+    describe '#album' do
+      subject { super().album }
+      it { is_expected.to eq("") }
+    end
+
+    describe '#comment' do
+      subject { super().comment }
+      it { is_expected.to eq("") }
+    end
+
+    describe '#track' do
+      subject { super().track }
+      it { is_expected.to eq(nil) }
+    end
+
+    describe '#genre' do
+      subject { super().genre }
+      it { is_expected.to eq('Blues') }
+    end
   end
 end
