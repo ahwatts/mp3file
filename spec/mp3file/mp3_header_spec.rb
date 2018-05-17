@@ -336,17 +336,17 @@ describe Mp3file::MP3Header do
 
   describe "#duration" do
     combinations = [
-      [ "MPEG 1 Layer I 22 kHz",     0xFF, 0x1B, 0.012 ],
-      [ "MPEG 1 Layer II 48 kHz",    0xFD, 0x34, 0.024 ],
-      [ "MPEG 1 Layer III 44.1 kHz", 0xFB, 0x53, 0.026122448979591838 ],
-      [ "MPEG 2 Layer II 16 kHz",    0xF5, 0x48, 0.072 ],
-      [ "MPEG 2 Layer III 24 kHz",   0xF3, 0xD5, 0.024 ],
+      [ "MPEG 1 Layer I 32 kHz",     0xFF, 0x1B, 384.0  / 32000.0 ],
+      [ "MPEG 1 Layer II 48 kHz",    0xFD, 0x34, 1152.0 / 48000.0 ],
+      [ "MPEG 1 Layer III 44.1 kHz", 0xFB, 0x53, 1152.0 / 44100.0 ],
+      [ "MPEG 2 Layer II 16 kHz",    0xF5, 0x48, 1152.0 / 16000.0 ],
+      [ "MPEG 2 Layer III 24 kHz",   0xF3, 0xD5, 576.0  / 24000.0 ],
     ]
     combinations.each do |name, b2, b3, duration|
       it "for #{name}, returns #{duration} seconds" do
         io = create_io([ 0xFF, b2, b3, 0xC1 ])
         h = Mp3file::MP3Header.new(io)
-        expect(h.duration).to eq(duration)
+        expect(h.duration).to be_within(1e-5).of(duration)
       end
     end
   end
