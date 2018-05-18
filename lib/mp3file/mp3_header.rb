@@ -118,6 +118,10 @@ module Mp3file
       @side_bytes = SIDE_BYTES[head.version][head.mode]
     end
 
+    def duration
+      @samples.to_f / @samplerate
+    end
+
     def to_i
       @raw.to_binary_s
         .reverse
